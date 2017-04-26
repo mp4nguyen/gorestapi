@@ -12,13 +12,13 @@ var userroutes = Routes{
 		"AllUsers",
 		"GET",
 		"/users",
-		userCtrl.UsersRetrieve,
+		myjwt.JWTMW(userCtrl.UsersRetrieve),
 	},
 	Route{
 		"OneUser",
 		"GET",
 		"/users/{id:[0-9]+}",
-		userCtrl.GetUser,
+		myjwt.JWTMW(userCtrl.GetUser),
 	},
 	Route{
 		"CreateUser",

@@ -11,32 +11,40 @@ func JWTMW(h http.HandlerFunc) http.HandlerFunc {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		accessToken := r.Header["Accesstoken"][0]
-		fmt.Println("JWT Middleware: Accesstoken = ", accessToken)
+		accessTokenHeader := r.Header["Accesstoken"]
+		fmt.Println("JWT Middleware: accessTokenHeader = ", accessTokenHeader)
 
-		token, err := jwt.Parse(accessToken, func(token *jwt.Token) (interface{}, error) {
-			// Don't forget to validate the alg is what you expect:
-			// if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			//     return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
-			// }
+		if len(accessTokenHeader) > 0 {
+			accessToken := r.Header["Accesstoken"][0]
+			fmt.Println("JWT Middleware: Accesstoken = ", accessToken)
 
-			// hmacSampleSecret is a []byte containing your secret, e.g. []byte("my_secret_key")
-			return VerifyKey, nil
-		})
+			token, err := jwt.Parse(accessToken, func(token *jwt.Token) (interface{}, error) {
+				// Don't forget to validate the alg is what you expect:
+				// if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+				//     return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+				// }
 
-		if err == nil {
-			if token.Valid {
+				// hmacSampleSecret is a []byte containing your secret, e.g. []byte("my_secret_key")
+				return VerifyKey, nil
+			})
 
-				if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-					fmt.Println(claims["username"])
+			if err == nil {
+				if token.Valid {
+
+					if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+						fmt.Println(claims["username"])
+					} else {
+						fmt.Println(err)
+					}
+
+					h.ServeHTTP(w, r)
 				} else {
-					fmt.Println(err)
+					w.WriteHeader(http.StatusUnauthorized)
+					fmt.Fprint(w, "Token is not valid")
 				}
-
-				h.ServeHTTP(w, r)
 			} else {
 				w.WriteHeader(http.StatusUnauthorized)
-				fmt.Fprint(w, "Token is not valid")
+				fmt.Fprint(w, "Unauthorized access to this resource")
 			}
 		} else {
 			w.WriteHeader(http.StatusUnauthorized)

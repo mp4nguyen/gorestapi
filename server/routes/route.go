@@ -16,15 +16,20 @@ type Route struct {
 
 type Routes []Route
 
-func NewRouter() *mux.Router {
-	router := mux.NewRouter().StrictSlash(true).PathPrefix("/api/v1/").Subrouter()
-	for _, route := range userroutes {
+func createRouter(router *mux.Router, routes Routes) {
+	for _, route := range routes {
 		router.
 			Methods(route.Method).
 			Path(route.Pattern).
 			Name(route.Name).
 			Handler(middleware.Logger(route.HandlerFunc, route.Name))
-
 	}
+}
+
+func NewRouter() *mux.Router {
+
+	router := mux.NewRouter().StrictSlash(true).PathPrefix("/api/v1/").Subrouter()
+	createRouter(router, userroutes)
+
 	return router
 }
