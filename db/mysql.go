@@ -17,7 +17,7 @@ type DB struct {
 //Init ...
 func InitMysql() {
 
-	db, err := sql.Open("mysql", "root:root@/OCS")
+	db, err := sql.Open("mysql", "root:root@/sakila2")
 	if err != nil {
 		log.Fatal(err)
 	}
