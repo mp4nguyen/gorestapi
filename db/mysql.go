@@ -15,7 +15,7 @@ type DB struct {
 }
 
 //Init ...
-func Init() {
+func InitMysql() {
 
 	db, err := sql.Open("mysql", "root:root@/OCS")
 	if err != nil {

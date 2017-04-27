@@ -2,6 +2,7 @@ package route
 
 import (
 	"bitbucket.org/restapi/controllers"
+	"bitbucket.org/restapi/middleware"
 	"bitbucket.org/restapi/myjwt"
 )
 
@@ -12,13 +13,13 @@ var userroutes = Routes{
 		"AllUsers",
 		"GET",
 		"/users",
-		myjwt.JWTMW(userCtrl.UsersRetrieve),
+		middleware.AddMiddleware(userCtrl.UsersRetrieve, myjwt.JWTMW),
 	},
 	Route{
 		"OneUser",
 		"GET",
 		"/users/{id:[0-9]+}",
-		myjwt.JWTMW(userCtrl.GetUser),
+		middleware.AddMiddleware(userCtrl.GetUser, myjwt.JWTMW),
 	},
 	Route{
 		"CreateUser",
@@ -36,6 +37,12 @@ var userroutes = Routes{
 		"Login",
 		"GET",
 		"/afterlogin",
-		myjwt.JWTMW(userCtrl.AfterLogin),
+		middleware.AddMiddleware(userCtrl.AfterLogin, myjwt.JWTMW),
+	},
+	Route{
+		"Login",
+		"GET",
+		"/afterlogin2",
+		userCtrl.AfterLogin,
 	},
 }
