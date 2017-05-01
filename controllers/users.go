@@ -75,6 +75,7 @@ func (u UserController) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (u UserController) AfterLogin(w http.ResponseWriter, r *http.Request) {
+
 	fmt.Fprintln(w, "string(json)")
 }
 

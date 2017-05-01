@@ -25,6 +25,10 @@ type UsersModel struct{}
 func (m UsersModel) All() (users Users, err error) {
 	log.Println("starting retrieval all users")
 	rows, err := db.GetDB().Query("select * from test_users LIMIT 10")
+	if err != nil {
+		log.Println("users.go: All() err = ", err)
+	}
+
 	Response := Users{}
 
 	for rows.Next() {
