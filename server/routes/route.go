@@ -22,7 +22,7 @@ func createRouter(router *mux.Router, routes Routes) {
 			Methods(route.Method).
 			Path(route.Pattern).
 			Name(route.Name).
-			Handler(middleware.Logger(route.HandlerFunc, route.Name))
+			Handler(middleware.Logger(middleware.CORS(route.HandlerFunc), route.Name))
 	}
 }
 

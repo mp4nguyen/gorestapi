@@ -31,7 +31,7 @@ type test struct {
 }
 
 type returnCal struct {
-	Dates []*returnDate `json:"dates"`
+	Dates []*returnDate `json:"calendars"`
 }
 
 type returnDate struct {
@@ -297,3 +297,34 @@ func assignSlotIntoSegment(doctor *calDoctor, currentSegment int, slot models.Ca
 	segment.Slots = append(segment.Slots, &slot)
 	doctor.SlotSegments[currentSegment] = segment
 }
+
+/*
+if(segment.firstSlot){
+		date.slots.push({
+				calId: segment.firstSlot.slot.calId,
+				calendarDate: segment.firstSlot.slot.calendarDate,
+				calendarTime: segment.firstSlot.slot.calendarTime,
+				doctorId: segment.firstSlot.slot.doctorId,
+				doctorName: segment.firstSlot.slot.doctorName,
+				fromTime: segment.firstSlot.slot.fromTime,
+				toTime: segment.firstSlot.followingSlots[segment.firstSlot.followingSlots.length - 1].toTime,
+				fromTimeInInt: segment.firstSlot.slot.fromTime.getTime(),
+				siteId: segment.firstSlot.slot.siteId,
+				followingSlots: segment.firstSlot.followingSlots
+		});
+}
+if(segment.lastSlot){
+		date.slots.push({
+				calId: segment.lastSlot.slot.calId,
+				calendarDate: segment.lastSlot.slot.calendarDate,
+				calendarTime: segment.lastSlot.slot.calendarTime,
+				doctorId: segment.lastSlot.slot.doctorId,
+				doctorName: segment.lastSlot.slot.doctorName,
+				fromTime: segment.lastSlot.slot.fromTime,
+				toTime: segment.lastSlot.followingSlots[segment.lastSlot.followingSlots.length - 1].toTime,
+				fromTimeInInt: segment.lastSlot.slot.fromTime.getTime(),
+				siteId: segment.lastSlot.slot.siteId,
+				followingSlots: segment.lastSlot.followingSlots
+		});
+}
+*/
