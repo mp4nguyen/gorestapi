@@ -17,7 +17,7 @@ type DB struct {
 //Init ...
 func InitMysql() {
 	//root:root@tcp(192.168.40.11:3306)/sakila2
-	db, err := sql.Open("mysql", "root:root@/OCS?parseTime=true")
+	db, err := sql.Open("mysql", "root:root@/sakila2?parseTime=true")
 	if err != nil {
 		log.Fatal("mysql.go: failed to connect to mysql ", err)
 	}

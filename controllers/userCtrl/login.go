@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"time"
 
-	models "bitbucket.org/restapi/models/users"
+	"bitbucket.org/restapi/models/userMdl"
 	"bitbucket.org/restapi/myjwt"
 
 	jwt "github.com/dgrijalva/jwt-go"
@@ -17,7 +17,7 @@ import (
 
 func Login(w http.ResponseWriter, r *http.Request) {
 
-	NewUser := models.User{}
+	NewUser := userMdl.User{}
 
 	dec := json.NewDecoder(r.Body)
 	for {

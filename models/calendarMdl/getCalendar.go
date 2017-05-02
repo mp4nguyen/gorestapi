@@ -11,7 +11,7 @@ func GetCalendar(id int, from string, to string) (calendars Calendars, err error
 
 	start := time.Now()
 
-	rows, err := db.GetDB().Query("select cal_id,roster_id,doctor_id,doctor_name,calendar_from_time,calendar_to_time,site_id,calendar_date,calendar_time from calendar_tam where enable = 'Y' and site_id = ? and calendar_from_time >= ? and calendar_from_time <= ? order by calendar_date,doctor_id,calendar_from_time", id, from, to)
+	rows, err := db.GetDB().Query("select cal_id,roster_id,doctor_id,doctor_name,calendar_from_time,calendar_to_time,site_id,calendar_date,calendar_time from calendar2_v where enable = 'Y' and site_id = ? and calendar_from_time >= ? and calendar_from_time <= ? order by calendar_date,doctor_id,calendar_from_time", id, from, to)
 	//rows, err := db.GetDB().Query("select cal_id,roster_id,doctor_id,doctor_name,calendar_from_time,calendar_to_time,site_id,calendar_date,calendar_time from calendar2 ")
 	if err != nil {
 		log.Println("users.go: All() err = ", err)
