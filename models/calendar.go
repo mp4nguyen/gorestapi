@@ -10,7 +10,7 @@ import (
 var layout string = "2006-01-02 15:04:05"
 
 type Calendar struct {
-	ID               int       `json:"calId"`
+	CalId            int       `json:"calId"`
 	RosterId         int       `json:"rosterId"`
 	DoctorId         int       `json:"doctorId"`
 	DoctorName       string    `json:"doctorName"`
@@ -42,7 +42,7 @@ func (m CalendarModel) GetCalendar(id int, from string, to string) (calendars Ca
 	for rows.Next() {
 
 		calendar := Calendar{}
-		rows.Scan(&calendar.ID, &calendar.RosterId, &calendar.DoctorId, &calendar.DoctorName, &calendar.CalendarFromTime, &calendar.CalendarToTime, &calendar.SiteId, &calendar.CalendarDate, &calendar.CalendarTime)
+		rows.Scan(&calendar.CalId, &calendar.RosterId, &calendar.DoctorId, &calendar.DoctorName, &calendar.CalendarFromTime, &calendar.CalendarToTime, &calendar.SiteId, &calendar.CalendarDate, &calendar.CalendarTime)
 		//calendar.CalendarFromTimeInTime,err := time.Parse(layout, calendar.CalendarFromTime)
 		Response.Calendars = append(Response.Calendars, calendar)
 	}
