@@ -9,10 +9,8 @@ import (
 	"sort"
 	"time"
 
-	"bitbucket.org/restapi/models"
+	"bitbucket.org/restapi/models/calendarMdl"
 )
-
-var calendarsModel = new(models.CalendarModel)
 
 func GetCalendar(w http.ResponseWriter, r *http.Request) {
 
@@ -38,12 +36,12 @@ func GetCalendar(w http.ResponseWriter, r *http.Request) {
 	//buildCals := buildCal{make(map[string]*calDate)}
 	buildCals := returnCal{}
 	//buildCals.dates = (make(map[string]calDate))
-	cals, err := calendarsModel.GetCalendar(calParams.Id, calParams.From, calParams.To)
+	cals, err := calendarMdl.GetCalendar(calParams.Id, calParams.From, calParams.To)
 
 	log.Printf("sql duration = %s", time.Since(start))
 	start = time.Now()
 
-	prevCal := models.Calendar{}
+	prevCal := calendarMdl.Calendar{}
 	currentDateIndex := -1
 	for _, cal := range cals.Calendars {
 		//fmt.Println("			- date = ", cal)
@@ -51,7 +49,7 @@ func GetCalendar(w http.ResponseWriter, r *http.Request) {
 			rDate := returnDate{}
 			rDate.Date = cal.CalendarDate
 			rDate.FormatedDate = cal.CalendarDate
-			rDate.Doctors = append(rDate.Doctors, &calDoctor{cal.DoctorId, cal.DoctorName, []models.Calendar{cal}, []*slotSegment{}})
+			rDate.Doctors = append(rDate.Doctors, &calDoctor{cal.DoctorId, cal.DoctorName, []calendarMdl.Calendar{cal}, []*slotSegment{}})
 			buildCals.Dates = append(buildCals.Dates, &rDate)
 			currentDateIndex++
 		} else {
@@ -71,7 +69,7 @@ func GetCalendar(w http.ResponseWriter, r *http.Request) {
 			}
 			currentSegment := 0
 			//fmt.Println("					+ doctorId = ", doctorId)
-			prevSlot := models.Calendar{}
+			prevSlot := calendarMdl.Calendar{}
 			for slotId, slot := range doctor.Slots {
 				//fmt.Println("							* slotId = ", slotId, " slot =", slot)
 				if slotId == 0 {
@@ -194,17 +192,17 @@ func GetCalendar(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func buildDoctorCal(cal models.Calendar, existingCal *returnDate) {
+func buildDoctorCal(cal calendarMdl.Calendar, existingCal *returnDate) {
 	prevDoctor := existingCal.Doctors[len(existingCal.Doctors)-1]
 	if prevDoctor.DoctorID != cal.DoctorId {
-		existingCal.Doctors = append(existingCal.Doctors, &calDoctor{cal.DoctorId, cal.DoctorName, []models.Calendar{cal}, []*slotSegment{}})
+		existingCal.Doctors = append(existingCal.Doctors, &calDoctor{cal.DoctorId, cal.DoctorName, []calendarMdl.Calendar{cal}, []*slotSegment{}})
 	} else {
 		prevDoctor.Slots = append(prevDoctor.Slots, cal)
 		//existingCal.doctors[cal.DoctorId] = doctorMap
 	}
 }
 
-func assignSlotIntoSegment(doctor *calDoctor, currentSegment int, slot models.Calendar) {
+func assignSlotIntoSegment(doctor *calDoctor, currentSegment int, slot calendarMdl.Calendar) {
 	segment := doctor.SlotSegments[currentSegment]
 	segment.Slots = append(segment.Slots, &slot)
 	doctor.SlotSegments[currentSegment] = segment

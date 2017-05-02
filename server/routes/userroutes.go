@@ -1,12 +1,10 @@
 package route
 
 import (
-	"bitbucket.org/restapi/controllers"
+	"bitbucket.org/restapi/controllers/userCtrl"
 	"bitbucket.org/restapi/middleware"
 	"bitbucket.org/restapi/myjwt"
 )
-
-var userCtrl = controllers.UserController{}
 
 var userroutes = Routes{
 	Route{
