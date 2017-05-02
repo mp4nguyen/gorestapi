@@ -9,20 +9,21 @@ import (
 	"sort"
 	"time"
 
+	"bitbucket.org/restapi/models/calendarHoldingDetailMdl"
 	"bitbucket.org/restapi/models/calendarMdl"
 )
 
 func GetCalendar(w http.ResponseWriter, r *http.Request) {
 
-	log.Println("Body = ",r.Body)
-	log.Println("Form = ",r.Form )
-	log.Println("PostForm = ",r.PostForm )
+	log.Println("Body = ", r.Body)
+	log.Println("Form = ", r.Form)
+	log.Println("PostForm = ", r.PostForm)
 
 	start := time.Now()
 
 	calParams := GetCalendarParams{}
 	dec := json.NewDecoder(r.Body)
-	log.Println("dec Body = ",dec )
+	log.Println("dec Body = ", dec)
 	//fmt.Println(dec)
 	//fmt.Println(r.FormValue("id"))
 	for {
@@ -42,6 +43,7 @@ func GetCalendar(w http.ResponseWriter, r *http.Request) {
 	buildCals := returnCal{}
 	//buildCals.dates = (make(map[string]calDate))
 	cals, err := calendarMdl.GetCalendar(calParams.Id, calParams.From, calParams.To)
+	calHolding, err := calendarHoldingDetailMdl.GetCalendarHoldingDetail()
 
 	log.Printf("sql duration = %s", time.Since(start))
 	start = time.Now()
@@ -184,7 +186,27 @@ func GetCalendar(w http.ResponseWriter, r *http.Request) {
 		sort.Sort(ByCalendarTime(date.Slots))
 	}
 
-	//log.Println("buildCals = ", buildCals)
+	//remove all slot were holding
+	for _, hold := range calHolding.CalendarHoldingDetails {
+		//fmt.Println("calHolding.CalId= ", hold.CalId)
+		for _, date := range buildCals.Dates {
+			for slotIndex, slot := range date.Slots {
+				if hold.CalId == slot.CalId {
+					//fmt.Println(">>>>>>>>>found = ", slot.CalId, " at position = ", slotIndex)
+					date.Slots = RemoveIndex(date.Slots, slotIndex)
+					break
+				} else {
+					for _, fSlot := range slot.FollowingSlots {
+						if hold.CalId == fSlot.CalId {
+							//fmt.Println(">>>>>>>found in following = ", slot.CalId, " at position = ", slotIndex)
+							date.Slots = RemoveIndex(date.Slots, slotIndex)
+							break
+						}
+					}
+				}
+			}
+		}
+	}
 
 	log.Printf("build cal duration = %s", time.Since(start))
 
@@ -194,6 +216,17 @@ func GetCalendar(w http.ResponseWriter, r *http.Request) {
 	}
 	//fmt.Println(" JSON  = ", string(outputCals))
 	fmt.Fprintln(w, string(outputCals))
+
+}
+
+func RemoveIndex(s []*returnSlot, index int) []*returnSlot {
+	fmt.Println("will remove the element at ", index)
+	fmt.Println("len of array =  ", len(s))
+	if index < len(s) {
+		return append(s[:index], s[index+1:]...)
+	} else {
+		return s
+	}
 
 }
 

@@ -18,7 +18,7 @@ type returnCal struct {
 type returnDate struct {
 	Date         string        `json:"date"`
 	FormatedDate string        `json:"formatedDate"`
-	Doctors      []*calDoctor  `json:"doctors"`
+	Doctors      []*calDoctor  `json:"-"` //doctors
 	Slots        []*returnSlot `json:"slots"`
 }
 

@@ -27,7 +27,7 @@ func GetCalendar(id int, from string, to string) (calendars Calendars, err error
 		Response.Calendars = append(Response.Calendars, calendar)
 	}
 
-	log.Printf("sql with normal way duration = %s", time.Since(start))
+	log.Printf("calendarMdl: sql with normal way duration = %s", time.Since(start))
 
 	return Response, err
 }
