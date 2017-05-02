@@ -1,17 +1,14 @@
 package route
 
-import (
-	"bitbucket.org/restapi/controllers"
-)
+import "bitbucket.org/restapi/controllers/calendarCtrl"
 
-var calendarCtrl = controllers.CalendarController{}
+var calCtrl = calendarCtrl.CalendarController{}
 
 var calendarroutes = Routes{
 	Route{
 		"CreateUser",
 		"POST",
 		"/getCalendar",
-		calendarCtrl.GetCalendar,
+		calCtrl.GetCalendar,
 	},
-
 }
