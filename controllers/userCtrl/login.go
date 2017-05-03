@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"time"
 
+	"bitbucket.org/restapi/models/accessTokenMdl"
 	"bitbucket.org/restapi/models/userMdl"
 	"bitbucket.org/restapi/myjwt"
 
@@ -15,7 +16,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-func Login(w http.ResponseWriter, r *http.Request) {
+func LoginJWT(w http.ResponseWriter, r *http.Request) {
 
 	NewUser := userMdl.User{}
 
@@ -60,5 +61,33 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	response := Token{tokenString}
 	json, _ := json.Marshal(response)
 
+	fmt.Println(json)
+
 	fmt.Fprintln(w, string(json))
+}
+
+func LoginAT(w http.ResponseWriter, r *http.Request) {
+
+	NewUser := userMdl.User{}
+
+	dec := json.NewDecoder(r.Body)
+	for {
+
+		if err := dec.Decode(&NewUser); err == io.EOF {
+			break
+		} else if err != nil {
+			log.Fatal(err)
+		}
+	}
+	output, err := json.Marshal(NewUser)
+	log.Println(string(output))
+	if err != nil {
+		fmt.Println("Something went wrong!")
+	}
+
+	at, err := accessTokenMdl.Create(1)
+	//atObject, err2 := accessTokenMdl.One(at)
+
+	//fmt.Println("AccessToken = ", atObject, err2)
+	fmt.Fprintln(w, string(at))
 }

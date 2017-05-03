@@ -9,5 +9,7 @@ import (
 
 func AfterLogin(w http.ResponseWriter, r *http.Request) {
 
-	fmt.Fprintln(w, "string(json)")
+	//r.Context().Value("UserId")
+	//r.Context().Value("UserId")
+	fmt.Fprintln(w, "string(json) UserId = ")
 }

@@ -18,6 +18,10 @@ func main() {
 	db.InitMysql()
 	db.InitRedis()
 	myjwt.InitKeys()
+	//db.GetRedis().Set("01", "value", 0)
+	//db.GetRedis().Set("02", "value2", 0)
+	//fmt.Println("01 = ", db.GetRedis().Get("01"))
+	//fmt.Println("02 = ", db.GetRedis().Get("02"))
 	// routes := mux.NewRouter().PathPrefix("/api/v1/").Subrouter()
 	// userCtrl := controllers.UserController{}
 	// routes.HandleFunc("/users", middleware.Logger(userCtrl.CreateUser, "createUser")).Methods("POST")
