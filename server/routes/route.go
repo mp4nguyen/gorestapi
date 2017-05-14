@@ -31,5 +31,6 @@ func NewRouter() *mux.Router {
 	router := mux.NewRouter().StrictSlash(true).PathPrefix("/api/v1/").Subrouter()
 	createRouter(router, userroutes)
 	createRouter(router, calendarroutes)
+	createRouter(router, accountroutes)
 	return router
 }

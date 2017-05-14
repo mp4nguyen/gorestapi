@@ -15,10 +15,6 @@ import (
 
 func GetCalendar(w http.ResponseWriter, r *http.Request) {
 
-	log.Println("Body = ", r.Body)
-	log.Println("Form = ", r.Form)
-	log.Println("PostForm = ", r.PostForm)
-
 	start := time.Now()
 
 	calParams := GetCalendarParams{}

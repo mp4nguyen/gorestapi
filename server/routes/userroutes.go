@@ -11,13 +11,13 @@ var userroutes = Routes{
 		"AllUsers",
 		"GET",
 		"/users",
-		middleware.AddMiddleware(userCtrl.UsersRetrieve, myjwt.JWTMW),
+		middleware.AddMiddleware(userCtrl.UsersRetrieve, middleware.IsAuthenticatedATMW),
 	},
 	Route{
 		"OneUser",
 		"GET",
 		"/users/{id:[0-9]+}",
-		middleware.AddMiddleware(userCtrl.GetUser, myjwt.JWTMW),
+		middleware.AddMiddleware(userCtrl.GetUser, middleware.IsAuthenticatedATMW),
 	},
 	Route{
 		"CreateUser",

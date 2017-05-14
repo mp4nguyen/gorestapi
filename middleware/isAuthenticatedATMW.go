@@ -32,6 +32,8 @@ func IsAuthenticatedATMW(inner http.HandlerFunc) http.HandlerFunc {
 				//Checked authen successfully and then go to the main funcs
 				//Add data to context here.
 				ctx := context.WithValue(r.Context(), "UserId", at.UserId)
+				ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
+				defer cancel()
 				inner.ServeHTTP(w, r.WithContext(ctx))
 				//inner.ServeHTTP(w, r)
 			}
