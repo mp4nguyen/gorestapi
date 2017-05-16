@@ -1,6 +1,6 @@
 package route
 
-import "bitbucket.org/restapi/cli/accountCtrl"
+import "bitbucket.org/restapi/controllers/accountCtrl"
 
 var accountroutes = Routes{
 	Route{

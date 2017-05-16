@@ -1,9 +1,7 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strings"
 	"unicode"
@@ -11,6 +9,7 @@ import (
 	"bitbucket.org/restapi/db"
 	"bitbucket.org/restapi/models/tableColumnsMdl"
 	"github.com/abiosoft/ishell"
+	logrus "github.com/sirupsen/logrus"
 )
 
 func UcFirst(str string) string {
@@ -67,8 +66,27 @@ func appendToBytes(original *([]byte), addMore string) {
 	*original = append(*original, addMore...)
 }
 
+var log = logrus.New()
+
 func main() {
 
+	log.Out = os.Stdout
+
+	// You could set this to any `io.Writer` such as a file
+	// file, err := os.OpenFile("logrus.log", os.O_CREATE|os.O_WRONLY, 0666)
+	// if err == nil {
+	// 	log.Out = file
+	// } else {
+	// 	log.Info("Failed to log to file, using default stderr")
+	// }
+
+	//log.Formatter = &logrus.JSONFormatter{}
+	log.WithFields(logrus.Fields{
+		"animal": "walrus",
+		"size":   10,
+	}).Info("A group of walrus emerges from the ocean")
+
+	/////////////////
 	db.InitMysql()
 	defer db.GetDB().Close()
 	// create new shell.
@@ -106,123 +124,114 @@ func main() {
 				return
 			}
 
-			output, _ := json.Marshal(tableColumns.TableColumns)
-			fmt.Println(string(output))
+			// output, _ := json.Marshal(tableColumns.TableColumns)
+			// fmt.Println(string(output))
 
 			queryFields := ""
 			outputFields := ""
+			modelFields := ""
+			preFieldsForInsert := ""
+			modelFieldsForInsert := ""
+			columnKey := ""
+			declareDateFields := ""
+			assignDateFields := ""
+			for index, column := range tableColumns.TableColumns {
+				queryFields = queryFields + "," + column.COLUMNNAME
+
+				modelFields = modelFields + "" + fmt.Sprintf("\t%s %s `json:\"%s\"`\n", fieldName(column.COLUMNNAME), dataType(column.DATATYPE), jsonName(column.COLUMNNAME))
+				if dataType(column.DATATYPE) == "time.Time" {
+					modelFieldsForInsert = modelFieldsForInsert + ", input." + fieldName(column.COLUMNNAME) + ".Format(\"2006-01-02 15:04:05\")"
+
+					declareDateFields += "temp" + fieldName(column.COLUMNNAME) + " := mysql.NullTime{} \n"
+					outputFields = outputFields + ",&temp" + fieldName(column.COLUMNNAME)
+					assignDateFields += "row." + fieldName(column.COLUMNNAME) + " = " + "temp" + fieldName(column.COLUMNNAME) + ".Time \n"
+				} else {
+					modelFieldsForInsert = modelFieldsForInsert + ", input." + fieldName(column.COLUMNNAME)
+					outputFields = outputFields + ",&row." + fieldName(column.COLUMNNAME)
+				}
+
+				preFieldsForInsert = preFieldsForInsert + ",?"
+
+				if column.COLUMNKEY == "PRI" {
+					columnKey = column.COLUMNNAME
+				}
+
+				c.Println(index, ": ", column.COLUMNNAME, " ", column.DATATYPE, " ", column.CHARACTERMAXIMUMLENGTH, " ", column.COLUMNKEY)
+			}
+			queryFields = queryFields[1:len(queryFields)]
+			outputFields = outputFields[1:len(outputFields)]
+			modelFieldsForInsert = modelFieldsForInsert[1:len(modelFieldsForInsert)]
+			preFieldsForInsert = preFieldsForInsert[1:len(preFieldsForInsert)]
 			///// create folder for model////
 			folderName := LcFirst(modelName) + "Mdl"
 			os.Mkdir(folderName, 0777)
 			folderCtrlName := LcFirst(modelName) + "Ctrl"
 			os.Mkdir(folderCtrlName, 0777)
 
-			////create 0model.go////
-			modelFile := []byte("")
-			appendToBytes(&modelFile, fmt.Sprintf("package %sMdl\n\n", LcFirst(modelName)))
-			appendToBytes(&modelFile, fmt.Sprintf("import \"time\"\n\n"))
-			appendToBytes(&modelFile, fmt.Sprintf("type %s struct{\n", modelName))
-			for index, column := range tableColumns.TableColumns {
-				queryFields = queryFields + "," + column.COLUMNNAME
-				outputFields = outputFields + ",&row." + fieldName(column.COLUMNNAME)
-				c.Println(index, ": ", column.COLUMNNAME, " ", column.DATATYPE, " ", column.CHARACTERMAXIMUMLENGTH)
-				appendToBytes(&modelFile, fmt.Sprintf("\t%s %s `json:\"%s\"`\n", fieldName(column.COLUMNNAME), dataType(column.DATATYPE), jsonName(column.COLUMNNAME)))
-			}
-			queryFields = queryFields[1:len(queryFields)]
-			outputFields = outputFields[1:len(outputFields)]
-			appendToBytes(&modelFile, fmt.Sprintf("\t}\n\n"))
-			appendToBytes(&modelFile, fmt.Sprintf("type %ss []%s", modelName, modelName))
-			errModelFile := ioutil.WriteFile(folderName+"/0model.go", modelFile, 0644)
-			if errModelFile != nil {
-				c.Println("Error while writing to file err = ", errModelFile)
-			}
-			////create find.go////
-			findFile := []byte("")
-			appendToBytes(&findFile, fmt.Sprintf("package %sMdl\n\n", LcFirst(modelName)))
-			appendToBytes(&findFile, fmt.Sprintf("import \"time\"\n"))
-			appendToBytes(&findFile, fmt.Sprintf("import \"log\"\n"))
-			appendToBytes(&findFile, fmt.Sprintf("import \"bitbucket.org/restapi/db\"\n\n"))
+			createModelFile(c, folderName, modelName, modelFields)
+			createFindFile(c, folderName, schemaName, tableName, modelName, outputFields, queryFields, declareDateFields, assignDateFields)
+			createMapFindFile(c, folderName, schemaName, tableName, modelName, outputFields, queryFields, declareDateFields, assignDateFields, fieldName(columnKey))
+			createFindByIdFile(c, folderName, schemaName, tableName, modelName, outputFields, queryFields, columnKey)
+			createCreateFile(c, folderName, schemaName, tableName, modelName, preFieldsForInsert, modelFieldsForInsert, queryFields)
+			createFindCtrlFile(c, folderCtrlName, modelName)
 
-			appendToBytes(&findFile, fmt.Sprintf("func Find()(%ss %ss,err error){\n", LcFirst(modelName), modelName))
-			appendToBytes(&findFile, fmt.Sprintf("\trows, err := db.GetDB().Query(\"select %s from %s.%s\")\n", queryFields, schemaName, tableName))
-			appendToBytes(&findFile, "\tif err != nil {\n")
-			appendToBytes(&findFile, fmt.Sprintf("\t\tlog.Println(\"%sMdl.find.go: All() err = \", err)\n", LcFirst(modelName)))
-			appendToBytes(&findFile, "\t}\n\n")
-			appendToBytes(&findFile, fmt.Sprintf("\tresponse := %ss{}\n", modelName))
-			appendToBytes(&findFile, "\tfor rows.Next() {\n")
-			appendToBytes(&findFile, fmt.Sprintf("\t\trow := %s{}\n", modelName))
-			appendToBytes(&findFile, fmt.Sprintf("\t\trows.Scan(%s)\n", outputFields))
-			appendToBytes(&findFile, fmt.Sprintf("\t\tresponse = append(response,row)\n"))
-			appendToBytes(&findFile, "\t}\n\n")
-			appendToBytes(&findFile, "\treturn response, err\n")
-			appendToBytes(&findFile, "}\n")
-
-			errFindFile := ioutil.WriteFile(folderName+"/find.go", findFile, 0644)
-			if errFindFile != nil {
-				c.Println("Error while writing to file err = ", errFindFile)
-			}
-
-			////create findCtrl.go
-			// calParams := GetCalendarParams{}
-			// dec := json.NewDecoder(r.Body)
-			// log.Println("dec Body = ", dec)
-			// //fmt.Println(dec)
-			// //fmt.Println(r.FormValue("id"))
-			// for {
-			// 	if err := dec.Decode(&calParams); err == io.EOF {
-			// 		break
-			// 	} else if err != nil {
-			// 		log.Fatal(err)
-			// 	}
-			// }
-			// output, err := json.Marshal(calParams)
-			// log.Println(string(output))
-			// if err != nil {
-			// 	fmt.Println("Something went wrong!")
-			// }
-			////
-			findCtrlFile := []byte("")
-			appendToBytes(&findCtrlFile, fmt.Sprintf("package %sCtrl\n\n", LcFirst(modelName)))
-			appendToBytes(&findCtrlFile, fmt.Sprintf("import \"time\"\n"))
-			appendToBytes(&findCtrlFile, fmt.Sprintf("import \"log\"\n"))
-			appendToBytes(&findCtrlFile, fmt.Sprintf("import \"bitbucket.org/restapi/db\"\n\n"))
-
-			appendToBytes(&findCtrlFile, "func Find(w http.ResponseWriter, r *http.Request) {\n")
-			appendToBytes(&findCtrlFile, fmt.Sprintf("\tdata, err := %sMdl.Find()\n", LcFirst(modelName)))
-			appendToBytes(&findCtrlFile, "\tif err != nil {\n")
-			appendToBytes(&findCtrlFile, "\t\tfmt.Println(err)\n")
-			appendToBytes(&findCtrlFile, "\t}\n")
-			appendToBytes(&findCtrlFile, "\toutput, _ := json.Marshal(data)\n")
-			appendToBytes(&findCtrlFile, "\tfmt.Fprintln(w, string(output))\n")
-			appendToBytes(&findCtrlFile, "}\n")
-
-			errFindCtrlFile := ioutil.WriteFile(folderCtrlName+"/findCtrl.go", findCtrlFile, 0644)
-			if errFindCtrlFile != nil {
-				c.Println("Error while writing to file err = ", errFindCtrlFile)
-			}
-
-			//			c.Printf("Authentication Successful. with username = %s and password = %s", username, password)
 		},
 	})
 
 	// simulate an authentication
 	shell.AddCmd(&ishell.Cmd{
-		Name: "login",
-		Help: "simulate a login",
+		Name: "relationship",
+		Help: "Make relationship between models",
 		Func: func(c *ishell.Context) {
 			// disable the '>>>' for cleaner same line input.
 			c.ShowPrompt(false)
 			defer c.ShowPrompt(true) // yes, revert after login.
 
-			// get username
-			c.Print("Username: ")
-			username := c.ReadLine()
+			c.Print("Make relationship between models")
+			c.Print("Relationship type[1:one-one|2:one-many]: ")
+			relationshipType := c.ReadLine()
+			c.Print("Schema name: ")
+			schemaName := c.ReadLine()
+			c.Print("Master table name: ")
+			masterTableName := c.ReadLine()
+			c.Print("Relationship name: ")
+			relationShipName := c.ReadLine()
+			c.Print("Master table foreign key: ")
+			masterTableForeignKey := c.ReadLine()
+			c.Print("Master model name: ")
+			masterModelName := UcFirst(c.ReadLine())
+			c.Print("Detail table name: ")
+			detailTableName := c.ReadLine()
+			c.Print("Detail model name: ")
+			detailModelName := UcFirst(c.ReadLine())
 
-			// get password.
-			c.Print("Password: ")
-			password := c.ReadPassword()
+			folderName := LcFirst(masterModelName) + "Mdl"
 
-			c.Printf("Authentication Successful. with username = %s and password = %s", username, password)
+			masterTableColumns, err := tableColumnsMdl.GetTableColumn(schemaName, masterTableName)
+			if err != nil {
+				c.Printf("Cannot get columns for table %s.%s (%s) \n", schemaName, masterTableName, err)
+				return
+			}
+
+			if len(masterTableColumns.TableColumns) == 0 {
+				c.Printf("There are no columns in the table %s.%s \n", schemaName, masterTableName)
+				return
+			}
+
+			detailTableColumns, err2 := tableColumnsMdl.GetTableColumn(schemaName, detailTableName)
+			if err2 != nil {
+				c.Printf("Cannot get columns for table %s.%s (%s) \n", schemaName, detailTableName, err2)
+				return
+			}
+
+			if len(detailTableColumns.TableColumns) == 0 {
+				c.Printf("There are no columns in the table %s.%s \n", schemaName, detailTableName)
+				return
+			}
+
+			createModelRelationshipFile(c, folderName, masterModelName, relationshipType, relationShipName, detailModelName)
+			createRelationshipFindFile(c, folderName, schemaName, masterTableName, masterModelName, detailModelName "columnKey", relationShipName)
+			fmt.Println("masterTableForeignKey = ", masterTableForeignKey)
 		},
 	})
 

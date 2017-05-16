@@ -11,7 +11,7 @@ func GetTableColumn(schemaName string, tableName string) (tableColumns TableColu
 
 	start := time.Now()
 
-	rows, err := db.GetDB().Query("SELECT COLUMN_NAME,DATA_TYPE,CHARACTER_MAXIMUM_LENGTH,IS_NULLABLE,ORDINAL_POSITION,COLUMN_DEFAULT FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?", schemaName, tableName)
+	rows, err := db.GetDB().Query("SELECT COLUMN_NAME,DATA_TYPE,COLUMN_KEY,CHARACTER_MAXIMUM_LENGTH,IS_NULLABLE,ORDINAL_POSITION,COLUMN_DEFAULT FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?", schemaName, tableName)
 	//rows, err := db.GetDB().Query("select cal_id,roster_id,doctor_id,doctor_name,calendar_from_time,calendar_to_time,site_id,calendar_date,calendar_time from calendar2 ")
 	if err != nil {
 		log.Println("users.go: All() err = ", err)
@@ -22,12 +22,12 @@ func GetTableColumn(schemaName string, tableName string) (tableColumns TableColu
 	for rows.Next() {
 
 		tableColumn := TableColumn{}
-		rows.Scan(&tableColumn.COLUMNNAME, &tableColumn.DATATYPE, &tableColumn.CHARACTERMAXIMUMLENGTH, &tableColumn.ISNULLABLE, &tableColumn.ORDINALPOSITION, &tableColumn.COLUMNDEFAULT)
+		rows.Scan(&tableColumn.COLUMNNAME, &tableColumn.DATATYPE, &tableColumn.COLUMNKEY, &tableColumn.CHARACTERMAXIMUMLENGTH, &tableColumn.ISNULLABLE, &tableColumn.ORDINALPOSITION, &tableColumn.COLUMNDEFAULT)
 		//calendar.CalendarFromTimeInTime,err := time.Parse(layout, calendar.CalendarFromTime)
 		Response.TableColumns = append(Response.TableColumns, tableColumn)
 	}
 
-	log.Printf("calendarMdl: sql with normal way duration = %s", time.Since(start))
+	log.Printf("GetTableColumn: sql with normal way duration = %s", time.Since(start))
 
 	return Response, err
 }

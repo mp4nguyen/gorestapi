@@ -6,6 +6,7 @@ type TableColumn struct {
 	COLUMNDEFAULT          string `json:"columnDefault"`
 	ISNULLABLE             string `json:"isNullable"`
 	DATATYPE               string `json:"dataType"`
+	COLUMNKEY              string `json:"columnKey"`
 	CHARACTERMAXIMUMLENGTH int    `json:"chracterMaxiumLength"`
 }
 

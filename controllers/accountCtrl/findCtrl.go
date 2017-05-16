@@ -36,4 +36,21 @@ func Find(w http.ResponseWriter, r *http.Request) {
 	}
 	output, _ := json.Marshal(data)
 	fmt.Fprintln(w, string(output))
+	data.FetchPerson()
+	// ////////test create///
+	// accounts := accountMdl.Accounts{}
+	// accounts = append(accounts, accountMdl.Account{UserType: "PATIENT", IsEnable: 1, Id: 0, Username: "testtesttest1", Password: "Passssssss"})
+	// accounts = append(accounts, accountMdl.Account{UserType: "PATIENT", IsEnable: 1, Id: 0, Username: "testtesttest2", Password: "Passssssss"})
+	// noOfRows, lastId, _ := accountMdl.Create(accounts)
+	// fmt.Println("created ", noOfRows)
+	// acc, _ := accountMdl.FindById(lastId)
+	//
+	// outputJsonParam, errJsonParam = json.Marshal(acc)
+	// log.Println("Just created row = ", string(outputJsonParam))
+	// if errJsonParam != nil {
+	// 	fmt.Println("Something went wrong! errJsonParam = ", errJsonParam)
+	// }
+
+	//////////////////////
+
 }
