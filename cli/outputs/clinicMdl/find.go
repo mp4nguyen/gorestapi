@@ -2,25 +2,12 @@ package clinicMdl
 
 import (
 	"log"
-	"reflect"
-	"strconv"
 
 	"bitbucket.org/restapi/db"
 	"github.com/go-sql-driver/mysql"
 )
 
-func getField(v *Clinic, field string) string {
-	r := reflect.ValueOf(v)
-	f := reflect.Indirect(r).FieldByName(field)
-	if f.Kind() == reflect.Int {
-		return strconv.Itoa(int(f.Int()))
-	} else if f.Kind() == reflect.String {
-		return f.String()
-	} else {
-		return ""
-	}
-}
-func MapFind(groupByField string, where string, orderBy string) (clinics map[string][]Clinic, err error) {
+func Find(where string, orderBy string) (clinics Clinics, err error) {
 	sqlString := "select clinic_id,clinic_name,isEnable,company_id,isBookable,isTelehealth,isCalendar,description,address,suburb_district,ward,postcode,state_province,country,created_by,creation_date,last_updated_by,last_update_date,latitude,longitude from ocs.clinics"
 	if len(where) > 0 {
 		sqlString += (" where " + where)
@@ -34,7 +21,7 @@ func MapFind(groupByField string, where string, orderBy string) (clinics map[str
 	}
 	defer rows.Close()
 
-	response := map[string][]Clinic{}
+	response := Clinics{}
 	for rows.Next() {
 		row := Clinic{}
 		tempCreationDate := mysql.NullTime{}
@@ -44,14 +31,7 @@ func MapFind(groupByField string, where string, orderBy string) (clinics map[str
 		row.CreationDate = tempCreationDate.Time
 		row.LastUpdateDate = tempLastUpdateDate.Time
 
-		groupByFieldValue := getField(&row, groupByField)
-		group, ok := response[groupByFieldValue]
-		if ok {
-			group = append(group, row)
-			response[groupByFieldValue] = group
-		} else {
-			response[groupByFieldValue] = []Clinic{row}
-		}
+		response = append(response, &row)
 	}
 
 	return response, err

@@ -173,7 +173,7 @@ func main() {
 			createMapFindFile(c, folderName, schemaName, tableName, modelName, outputFields, queryFields, declareDateFields, assignDateFields, fieldName(columnKey))
 			createFindByIdFile(c, folderName, schemaName, tableName, modelName, outputFields, queryFields, columnKey, declareDateFields, assignDateFields)
 			createCreateFile(c, folderName, schemaName, tableName, modelName, preFieldsForInsert, modelFieldsForInsert, queryFields)
-			createFindCtrlFile(c, folderCtrlName, modelName)
+			//createFindCtrlFile(c, folderCtrlName, modelName)
 
 		},
 	})

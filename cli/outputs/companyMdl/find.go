@@ -2,25 +2,12 @@ package companyMdl
 
 import (
 	"log"
-	"reflect"
-	"strconv"
 
 	"bitbucket.org/restapi/db"
 	"github.com/go-sql-driver/mysql"
 )
 
-func getField(v *Company, field string) string {
-	r := reflect.ValueOf(v)
-	f := reflect.Indirect(r).FieldByName(field)
-	if f.Kind() == reflect.Int {
-		return strconv.Itoa(int(f.Int()))
-	} else if f.Kind() == reflect.String {
-		return f.String()
-	} else {
-		return ""
-	}
-}
-func MapFind(groupByField string, where string, orderBy string) (companys map[string][]Company, err error) {
+func Find(where string, orderBy string) (companys Companys, err error) {
 	sqlString := "select company_id,company_name,isEnable,address,suburb_district,ward,postcode,state_province,country,description,policy,condition_to_book,logo_path,created_by,creation_date,last_updated_by,last_update_date from ocs.companies"
 	if len(where) > 0 {
 		sqlString += (" where " + where)
@@ -34,7 +21,7 @@ func MapFind(groupByField string, where string, orderBy string) (companys map[st
 	}
 	defer rows.Close()
 
-	response := map[string][]Company{}
+	response := Companys{}
 	for rows.Next() {
 		row := Company{}
 		tempCreationDate := mysql.NullTime{}
@@ -44,14 +31,7 @@ func MapFind(groupByField string, where string, orderBy string) (companys map[st
 		row.CreationDate = tempCreationDate.Time
 		row.LastUpdateDate = tempLastUpdateDate.Time
 
-		groupByFieldValue := getField(&row, groupByField)
-		group, ok := response[groupByFieldValue]
-		if ok {
-			group = append(group, row)
-			response[groupByFieldValue] = group
-		} else {
-			response[groupByFieldValue] = []Company{row}
-		}
+		response = append(response, &row)
 	}
 
 	return response, err

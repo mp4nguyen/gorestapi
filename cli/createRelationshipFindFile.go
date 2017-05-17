@@ -40,15 +40,18 @@ func createRelationshipFindFile(c *ishell.Context, folderName string, modelName 
 	appendToBytes(&findFile, fmt.Sprintf("\twhereCondition = whereCondition[0:len(whereCondition)-1] + \")\"\n"))
 
 	if relationshipType == "1" {
-		appendToBytes(&findFile, fmt.Sprintf("\ttempMapData, err := %sMdl.MapFind(whereCondition, \"%s\")\n", LcFirst(detailModelName), detailColumnKey))
+		appendToBytes(&findFile, fmt.Sprintf("\ttempMapData, err := %sMdl.MapFind(\"%s\",whereCondition, \"%s\")\n", LcFirst(detailModelName), fieldName(detailColumnKey), detailColumnKey))
 		appendToBytes(&findFile, fmt.Sprintf("\tfor _, row := range *m {\n"))
 		appendToBytes(&findFile, fmt.Sprintf("\t\ttempData, ok := tempMapData[strconv.Itoa(row.%s)]\n", fieldName(detailColumnKey)))
 		appendToBytes(&findFile, fmt.Sprintf("\t\tif ok {\n"))
-		appendToBytes(&findFile, fmt.Sprintf("\t\t\trow.%s = tempData\n", relationShipName))
+		appendToBytes(&findFile, fmt.Sprintf("\t\t\tif len(tempData) > 0 {\n"))
+		appendToBytes(&findFile, fmt.Sprintf("\t\t\trow.%s = tempData[0]\n", relationShipName))
+		appendToBytes(&findFile, fmt.Sprintf("\t\t\t}\n"))
+
 		appendToBytes(&findFile, fmt.Sprintf("\t\t}\n"))
 		appendToBytes(&findFile, fmt.Sprintf("\t}\n"))
 	} else if relationshipType == "2" {
-		appendToBytes(&findFile, fmt.Sprintf("\ttempMapData, err := %sMdl.MapFind(whereCondition, \"%s\")\n", LcFirst(detailModelName), detailTableForeignKey))
+		appendToBytes(&findFile, fmt.Sprintf("\ttempMapData, err := %sMdl.MapFind(%s,whereCondition, \"%s\")\n", LcFirst(detailModelName), fieldName(detailTableForeignKey), detailTableForeignKey))
 		appendToBytes(&findFile, fmt.Sprintf("\tfor _, row := range *m {\n"))
 		appendToBytes(&findFile, fmt.Sprintf("\t\ttempData, ok := tempMapData[strconv.Itoa(row.%s)]\n", fieldName(detailTableForeignKey)))
 		appendToBytes(&findFile, fmt.Sprintf("\t\tif ok {\n"))

@@ -2,25 +2,12 @@ package personMdl
 
 import (
 	"log"
-	"reflect"
-	"strconv"
 
 	"bitbucket.org/restapi/db"
 	"github.com/go-sql-driver/mysql"
 )
 
-func getField(v *Person, field string) string {
-	r := reflect.ValueOf(v)
-	f := reflect.Indirect(r).FieldByName(field)
-	if f.Kind() == reflect.Int {
-		return strconv.Itoa(int(f.Int()))
-	} else if f.Kind() == reflect.String {
-		return f.String()
-	} else {
-		return ""
-	}
-}
-func MapFind(groupByField string, where string, orderBy string) (persons map[string][]Person, err error) {
+func Find(where string, orderBy string) (persons Persons, err error) {
 	sqlString := "select person_id,isEnable,title,first_name,last_name,dob,gender,phone,mobile,occupation,address,suburb_district,ward,postcode,state_province,country,isPatient,isDoctor,created_by,creation_date,last_updated_by,last_update_date,email,source_id,avatar_id,signature_id from ocs.people"
 	if len(where) > 0 {
 		sqlString += (" where " + where)
@@ -34,7 +21,7 @@ func MapFind(groupByField string, where string, orderBy string) (persons map[str
 	}
 	defer rows.Close()
 
-	response := map[string][]Person{}
+	response := Persons{}
 	for rows.Next() {
 		row := Person{}
 		tempDob := mysql.NullTime{}
@@ -46,14 +33,7 @@ func MapFind(groupByField string, where string, orderBy string) (persons map[str
 		row.CreationDate = tempCreationDate.Time
 		row.LastUpdateDate = tempLastUpdateDate.Time
 
-		groupByFieldValue := getField(&row, groupByField)
-		group, ok := response[groupByFieldValue]
-		if ok {
-			group = append(group, row)
-			response[groupByFieldValue] = group
-		} else {
-			response[groupByFieldValue] = []Person{row}
-		}
+		response = append(response, &row)
 	}
 
 	return response, err

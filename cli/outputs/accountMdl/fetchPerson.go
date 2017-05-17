@@ -1,9 +1,12 @@
 package accountMdl
 
-import "log"
-import "bitbucket.org/restapi/db"
+import (
+	"strconv"
 
-func (m *Accounts)FetchPerson()(err error){
+	"bitbucket.org/restapi/cli/outputs/personMdl"
+)
+
+func (m *Accounts) FetchPerson() (err error) {
 	foreignKeys := map[string]string{}
 	whereCondition := "person_id in ("
 	for _, row := range *m {
@@ -14,7 +17,7 @@ func (m *Accounts)FetchPerson()(err error){
 		}
 	}
 	whereCondition = whereCondition[0:len(whereCondition)-1] + ")"
-	tempMapData, err := personMdl.MapFind(whereCondition, "person_id")
+	tempMapData, err := personMdl.MapFind(PersonId, whereCondition, "person_id")
 	for _, row := range *m {
 		tempData, ok := tempMapData[strconv.Itoa(row.PersonId)]
 		if ok {

@@ -2,25 +2,12 @@ package accountMdl
 
 import (
 	"log"
-	"reflect"
-	"strconv"
 
 	"bitbucket.org/restapi/db"
 	"github.com/go-sql-driver/mysql"
 )
 
-func getField(v *Account, field string) string {
-	r := reflect.ValueOf(v)
-	f := reflect.Indirect(r).FieldByName(field)
-	if f.Kind() == reflect.Int {
-		return strconv.Itoa(int(f.Int()))
-	} else if f.Kind() == reflect.String {
-		return f.String()
-	} else {
-		return ""
-	}
-}
-func MapFind(groupByField string, where string, orderBy string) (accounts map[string][]Account, err error) {
+func Find(where string, orderBy string) (accounts Accounts, err error) {
 	sqlString := "select password,email,user_type,isEnable,created_by,creation_date,last_updated_by,last_update_date,person_id,doctor_id,patient_id,company_id,emailVerified,realm,credentials,challenges,verificationToken,status,created,lastupdated,id,username from ocs.accounts"
 	if len(where) > 0 {
 		sqlString += (" where " + where)
@@ -34,7 +21,7 @@ func MapFind(groupByField string, where string, orderBy string) (accounts map[st
 	}
 	defer rows.Close()
 
-	response := map[string][]Account{}
+	response := Accounts{}
 	for rows.Next() {
 		row := Account{}
 		tempCreationDate := mysql.NullTime{}
@@ -48,14 +35,7 @@ func MapFind(groupByField string, where string, orderBy string) (accounts map[st
 		row.Created = tempCreated.Time
 		row.Lastupdated = tempLastupdated.Time
 
-		groupByFieldValue := getField(&row, groupByField)
-		group, ok := response[groupByFieldValue]
-		if ok {
-			group = append(group, row)
-			response[groupByFieldValue] = group
-		} else {
-			response[groupByFieldValue] = []Account{row}
-		}
+		response = append(response, &row)
 	}
 
 	return response, err

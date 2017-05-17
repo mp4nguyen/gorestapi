@@ -40,7 +40,7 @@ func Find(w http.ResponseWriter, r *http.Request) {
 
 	companies, err := companyMdl.Find("", "")
 	companies.FetchClinic()
-	output, _ := json.Marshal(companies)
+	output, _ := json.Marshal(data)
 	fmt.Fprintln(w, string(output))
 
 	// ////////test create///
