@@ -163,15 +163,15 @@ func main() {
 			modelFieldsForInsert = modelFieldsForInsert[1:len(modelFieldsForInsert)]
 			preFieldsForInsert = preFieldsForInsert[1:len(preFieldsForInsert)]
 			///// create folder for model////
-			folderName := LcFirst(modelName) + "Mdl"
+			folderName := "outputs/" + LcFirst(modelName) + "Mdl"
 			os.Mkdir(folderName, 0777)
-			folderCtrlName := LcFirst(modelName) + "Ctrl"
+			folderCtrlName := "outputs/" + LcFirst(modelName) + "Ctrl"
 			os.Mkdir(folderCtrlName, 0777)
 
 			createModelFile(c, folderName, modelName, modelFields)
 			createFindFile(c, folderName, schemaName, tableName, modelName, outputFields, queryFields, declareDateFields, assignDateFields)
 			createMapFindFile(c, folderName, schemaName, tableName, modelName, outputFields, queryFields, declareDateFields, assignDateFields, fieldName(columnKey))
-			createFindByIdFile(c, folderName, schemaName, tableName, modelName, outputFields, queryFields, columnKey)
+			createFindByIdFile(c, folderName, schemaName, tableName, modelName, outputFields, queryFields, columnKey, declareDateFields, assignDateFields)
 			createCreateFile(c, folderName, schemaName, tableName, modelName, preFieldsForInsert, modelFieldsForInsert, queryFields)
 			createFindCtrlFile(c, folderCtrlName, modelName)
 
@@ -187,6 +187,11 @@ func main() {
 			c.ShowPrompt(false)
 			defer c.ShowPrompt(true) // yes, revert after login.
 
+			detailTableForeignKey := ""
+			masterTableForeignKey := ""
+			detailColumnKey := ""
+			masterColumnKey := ""
+
 			c.Print("Make relationship between models")
 			c.Print("Relationship type[1:one-one|2:one-many]: ")
 			relationshipType := c.ReadLine()
@@ -196,12 +201,18 @@ func main() {
 			masterTableName := c.ReadLine()
 			c.Print("Relationship name: ")
 			relationShipName := c.ReadLine()
-			c.Print("Master table foreign key: ")
-			masterTableForeignKey := c.ReadLine()
+			if relationshipType == "1" {
+				c.Print("Master table foreign key: ")
+				masterTableForeignKey = c.ReadLine()
+			}
 			c.Print("Master model name: ")
 			masterModelName := UcFirst(c.ReadLine())
 			c.Print("Detail table name: ")
 			detailTableName := c.ReadLine()
+			if relationshipType == "2" {
+				c.Print("Master table foreign key: ")
+				detailTableForeignKey = c.ReadLine()
+			}
 			c.Print("Detail model name: ")
 			detailModelName := UcFirst(c.ReadLine())
 
@@ -229,9 +240,23 @@ func main() {
 				return
 			}
 
+			for _, column := range masterTableColumns.TableColumns {
+				if column.COLUMNKEY == "PRI" {
+					masterColumnKey = column.COLUMNNAME
+				}
+				//c.Println(index, ": ", column.COLUMNNAME, " ", column.DATATYPE, " ", column.CHARACTERMAXIMUMLENGTH, " ", column.COLUMNKEY)
+			}
+
+			for _, column := range detailTableColumns.TableColumns {
+				if column.COLUMNKEY == "PRI" {
+					detailColumnKey = column.COLUMNNAME
+				}
+				//c.Println(index, ": ", column.COLUMNNAME, " ", column.DATATYPE, " ", column.CHARACTERMAXIMUMLENGTH, " ", column.COLUMNKEY)
+			}
+
 			createModelRelationshipFile(c, folderName, masterModelName, relationshipType, relationShipName, detailModelName)
-			createRelationshipFindFile(c, folderName, schemaName, masterTableName, masterModelName, detailModelName "columnKey", relationShipName)
-			fmt.Println("masterTableForeignKey = ", masterTableForeignKey)
+			createRelationshipFindFile(c, folderName, masterModelName, detailModelName, masterColumnKey, detailColumnKey, masterTableForeignKey, detailTableForeignKey, relationshipType, relationShipName)
+			//fmt.Println("masterTableForeignKey = ", masterTableForeignKey)
 		},
 	})
 

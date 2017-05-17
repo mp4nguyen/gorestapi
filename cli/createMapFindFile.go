@@ -15,8 +15,19 @@ func createMapFindFile(c *ishell.Context, folderName string, schemaName string, 
 	appendToBytes(&findFile, fmt.Sprintf("import \"log\"\n"))
 	appendToBytes(&findFile, fmt.Sprintf("import \"bitbucket.org/restapi/db\"\n\n"))
 
-	appendToBytes(&findFile, fmt.Sprintf("func MapFind(where string, orderBy string)(%ss map[string]%s,err error){\n", LcFirst(modelName), modelName))
+	appendToBytes(&findFile, fmt.Sprintf("func getField(v *%s, field string) string {\n", modelName))
+	appendToBytes(&findFile, fmt.Sprintf("\tr := reflect.ValueOf(v)\n"))
+	appendToBytes(&findFile, fmt.Sprintf("\tf := reflect.Indirect(r).FieldByName(field)\n"))
+	appendToBytes(&findFile, fmt.Sprintf("\tif f.Kind() == reflect.Int {\n"))
+	appendToBytes(&findFile, fmt.Sprintf("\t\treturn strconv.Itoa(int(f.Int()))\n"))
+	appendToBytes(&findFile, fmt.Sprintf("\t} else if f.Kind() == reflect.String {\n"))
+	appendToBytes(&findFile, fmt.Sprintf("\t\treturn f.String()\n"))
+	appendToBytes(&findFile, fmt.Sprintf("\t} else {\n"))
+	appendToBytes(&findFile, fmt.Sprintf("\t\treturn \"\"\n"))
+	appendToBytes(&findFile, fmt.Sprintf("\t}\n"))
+	appendToBytes(&findFile, fmt.Sprintf("}\n"))
 
+	appendToBytes(&findFile, fmt.Sprintf("func MapFind(groupByField string,where string, orderBy string)(%ss map[string]%s,err error){\n", LcFirst(modelName), modelName))
 	appendToBytes(&findFile, fmt.Sprintf("\tsqlString := \"select %s from %s.%s\"\n", queryFields, schemaName, tableName))
 
 	appendToBytes(&findFile, "\tif len(where) > 0 {\n")

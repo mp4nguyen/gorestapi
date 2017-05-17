@@ -2,12 +2,13 @@ package accountMdl
 
 import (
 	"log"
+	"strconv"
 
 	"bitbucket.org/restapi/db"
 	"github.com/go-sql-driver/mysql"
 )
 
-func Find(where string, orderBy string) (accounts Accounts, err error) {
+func MapFind(where string, orderBy string) (accounts map[string]Account, err error) {
 	sqlString := "select password,email,user_type,isEnable,created_by,creation_date,last_updated_by,last_update_date,person_id,doctor_id,patient_id,company_id,emailVerified,realm,credentials,challenges,verificationToken,status,created,lastupdated,id,username from ocs.accounts"
 	if len(where) > 0 {
 		sqlString += (" where " + where)
@@ -21,7 +22,7 @@ func Find(where string, orderBy string) (accounts Accounts, err error) {
 	}
 	defer rows.Close()
 
-	response := Accounts{}
+	response := map[string]Account{}
 	for rows.Next() {
 		row := Account{}
 		tempCreationDate := mysql.NullTime{}
@@ -35,7 +36,7 @@ func Find(where string, orderBy string) (accounts Accounts, err error) {
 		row.Created = tempCreated.Time
 		row.Lastupdated = tempLastupdated.Time
 
-		response = append(response, &row)
+		response[strconv.Itoa(row.Id)] = row
 	}
 
 	return response, err

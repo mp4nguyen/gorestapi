@@ -23,7 +23,7 @@ func createModelRelationshipFile(c *ishell.Context, folderName string, modelName
 
 	appendToBytes(&modelFile, fmt.Sprintf("\t}\n\n"))
 
-	errModelFile := ioutil.WriteFile(fmt.Sprintf("%s/0%s_%s.go", folderName, modelName, relationShipName), modelFile, 0644)
+	errModelFile := ioutil.WriteFile(fmt.Sprintf("outputs/%s/0%s_%s.go", folderName, modelName, relationShipName), modelFile, 0644)
 	if errModelFile != nil {
 		c.Println("Error while writing to file err = ", errModelFile)
 	}

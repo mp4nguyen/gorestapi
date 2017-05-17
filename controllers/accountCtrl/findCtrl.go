@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"bitbucket.org/restapi/models/accountMdl"
+	"bitbucket.org/restapi/models/companyMdl"
 )
 
 func Find(w http.ResponseWriter, r *http.Request) {
@@ -30,13 +31,18 @@ func Find(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Something went wrong! errJsonParam = ", errJsonParam)
 	}
 
-	data, err := accountMdl.Find()
+	data, err := accountMdl.Find("", "")
 	if err != nil {
 		fmt.Println(err)
 	}
-	output, _ := json.Marshal(data)
-	fmt.Fprintln(w, string(output))
+
 	data.FetchPerson()
+
+	companies, err := companyMdl.Find("", "")
+	companies.FetchClinic()
+	output, _ := json.Marshal(companies)
+	fmt.Fprintln(w, string(output))
+
 	// ////////test create///
 	// accounts := accountMdl.Accounts{}
 	// accounts = append(accounts, accountMdl.Account{UserType: "PATIENT", IsEnable: 1, Id: 0, Username: "testtesttest1", Password: "Passssssss"})

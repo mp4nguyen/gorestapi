@@ -31,4 +31,4 @@ type Person struct {
 	SignatureId    int       `json:"signatureId"`
 }
 
-type Persons []Person
+type Persons []*Person
