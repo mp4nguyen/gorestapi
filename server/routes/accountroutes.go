@@ -9,4 +9,10 @@ var accountroutes = Routes{
 		"/accounts",
 		accountCtrl.Find,
 	},
+	Route{
+		"LoginAT",
+		"POST",
+		"/loginAT",
+		accountCtrl.LoginAT,
+	},
 }

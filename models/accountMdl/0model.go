@@ -6,8 +6,13 @@ import (
 	"bitbucket.org/restapi/models/personMdl"
 )
 
+type Login struct {
+	Password string `json:"password"`
+	Username string `json:"username"`
+}
+
 type Account struct {
-	Password          string           `json:"password"`
+	Password          string           `json:"-"`
 	Email             string           `json:"email"`
 	UserType          string           `json:"userType"`
 	IsEnable          int              `json:"isEnable"`

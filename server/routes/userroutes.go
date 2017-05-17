@@ -31,12 +31,7 @@ var userroutes = Routes{
 		"/loginJWT",
 		userCtrl.LoginJWT,
 	},
-	Route{
-		"LoginAT",
-		"POST",
-		"/loginAT",
-		userCtrl.LoginAT,
-	},
+
 	Route{
 		"Logout",
 		"POST",

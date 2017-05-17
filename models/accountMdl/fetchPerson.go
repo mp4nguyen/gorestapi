@@ -28,3 +28,16 @@ func (m *Accounts) FetchPerson() (err error) {
 	}
 	return err
 }
+
+func (m *Account) FetchPerson2() (err error) {
+
+	whereCondition := "person_id in (" + strconv.Itoa(m.PersonId) + ")"
+	tempMapData, err := personMdl.MapFind("PersonId", whereCondition, "person_id")
+	tempData, ok := tempMapData[strconv.Itoa(m.PersonId)]
+	if ok {
+		if len(tempData) > 0 {
+			m.Person = tempData[0]
+		}
+	}
+	return err
+}
