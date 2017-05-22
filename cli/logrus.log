@@ -1,0 +1,10 @@
+2017-05-22T13:14:34+08:00 INFO     : Start of program
+2017-05-22T13:14:34+08:00 INFO     : rlog is controlled via environment variables.
+2017-05-22T13:14:34+08:00 INFO     : Try the following settings:
+2017-05-22T13:14:34+08:00 INFO     :    export RLOG_LOG_LEVEL=DEBUG
+2017-05-22T13:14:34+08:00 INFO     :    export RLOG_TRACE_LEVEL=5
+2017-05-22T13:14:34+08:00 INFO     :    export RLOG_CALLER_INFO=yes
+2017-05-22T13:14:34+08:00 INFO     : Format strings are possible 123
+2017-05-22T13:14:34+08:00 WARN     : Warning level log message
+2017-05-22T13:14:34+08:00 ERROR    : Error level log message
+2017-05-22T13:14:34+08:00 CRITICAL : Critical level log message

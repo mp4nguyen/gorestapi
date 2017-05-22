@@ -4,15 +4,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 
+	"bitbucket.org/restapi/logger"
 	"bitbucket.org/restapi/models/accessTokenMdl"
 	"bitbucket.org/restapi/models/accountMdl"
 )
 
 func LoginAT(w http.ResponseWriter, r *http.Request) {
-
+	log := logger.Log
 	login := accountMdl.Login{}
 
 	dec := json.NewDecoder(r.Body)
@@ -25,32 +25,26 @@ func LoginAT(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	output, err := json.Marshal(login)
-	log.Println("Infor from client = ", string(output))
+	log.Infof("Infor from client = %s", string(output))
 	if err != nil {
-		fmt.Println("Something went wrong!")
+		log.Errorf("Something went wrong (%s)!", err)
 	}
 
 	isMatch, acc, errCheckAccount := login.CheckAccount()
 
-	fmt.Println("=====> ", isMatch, acc, errCheckAccount)
-
 	if isMatch {
-		acc.FetchPerson2()
+		acc.FetchPersonForAccount()
 		output, err := json.Marshal(acc)
-		log.Println("Infor from client = ", string(output))
+		log.Infof("Infor from client = %s", string(output))
 		if err != nil {
-			fmt.Println("Something went wrong!")
+			log.Errorf("Something went wrong (%s)!", err)
 		}
 
 		at, _ := accessTokenMdl.Create(1)
-		fmt.Println("at = ", at)
+		log.Infof(" at = %s", at)
 		fmt.Fprintln(w, string(output))
 	} else {
-		output, err := json.Marshal(errCheckAccount)
-		if err != nil {
-			fmt.Println("Something went wrong!")
-		}
-		fmt.Fprintln(w, string(output))
+		fmt.Fprintln(w, errCheckAccount)
 	}
 
 }

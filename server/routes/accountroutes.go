@@ -15,4 +15,16 @@ var accountroutes = Routes{
 		"/loginAT",
 		accountCtrl.LoginAT,
 	},
+	Route{
+		"CheckAvailableAccount",
+		"POST",
+		"/checkAvailableAccount",
+		accountCtrl.CheckAvailableAccount,
+	},
+	Route{
+		"Signup",
+		"POST",
+		"/signup",
+		accountCtrl.Signup,
+	},
 }

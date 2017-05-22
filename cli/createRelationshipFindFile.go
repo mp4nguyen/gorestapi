@@ -14,7 +14,40 @@ func createRelationshipFindFile(c *ishell.Context, folderName string, modelName 
 	appendToBytes(&findFile, fmt.Sprintf("import \"log\"\n"))
 	appendToBytes(&findFile, fmt.Sprintf("import \"bitbucket.org/restapi/db\"\n\n"))
 
-	appendToBytes(&findFile, fmt.Sprintf("func (m *%ss)Fetch%s()(err error){\n", modelName, detailModelName))
+	///create fetch data for single data
+
+	appendToBytes(&findFile, fmt.Sprintf("func (m *%s)Fetch%sFor%s()(err error){\n", modelName, detailModelName, modelName))
+
+	if relationshipType == "1" {
+		appendToBytes(&findFile, fmt.Sprintf("\twhereCondition := \"%s = strconv.Itoa(m.%s)\"\n", detailColumnKey, fieldName(detailColumnKey)))
+	} else if relationshipType == "2" {
+		appendToBytes(&findFile, fmt.Sprintf("\twhereCondition := \"%s = strconv.Itoa(m.%s)\"\n", detailTableForeignKey, fieldName(detailTableForeignKey)))
+	}
+
+	if relationshipType == "1" {
+		appendToBytes(&findFile, fmt.Sprintf("\ttempMapData, err := %sMdl.MapFind(\"%s\",whereCondition, \"%s\")\n", LcFirst(detailModelName), fieldName(detailColumnKey), detailColumnKey))
+		appendToBytes(&findFile, fmt.Sprintf("\t\ttempData, ok := tempMapData[strconv.Itoa(m.%s)]\n", fieldName(detailColumnKey)))
+		appendToBytes(&findFile, fmt.Sprintf("\t\tif ok {\n"))
+		appendToBytes(&findFile, fmt.Sprintf("\t\t\tif len(tempData) > 0 {\n"))
+		appendToBytes(&findFile, fmt.Sprintf("\t\t\tm.%s = tempData[0]\n", relationShipName))
+		appendToBytes(&findFile, fmt.Sprintf("\t\t\t}\n"))
+		appendToBytes(&findFile, fmt.Sprintf("\t\t}\n"))
+	} else if relationshipType == "2" {
+		appendToBytes(&findFile, fmt.Sprintf("\ttempMapData, err := %sMdl.MapFind(%s,whereCondition, \"%s\")\n", LcFirst(detailModelName), fieldName(detailTableForeignKey), detailTableForeignKey))
+		appendToBytes(&findFile, fmt.Sprintf("\t\ttempData, ok := tempMapData[strconv.Itoa(m.%s)]\n", fieldName(detailTableForeignKey)))
+		appendToBytes(&findFile, fmt.Sprintf("\t\tif ok {\n"))
+		appendToBytes(&findFile, fmt.Sprintf("\t\t\tif len(tempData) > 0 {\n"))
+		appendToBytes(&findFile, fmt.Sprintf("\t\t\tm.%s = tempData[0]\n", relationShipName))
+		appendToBytes(&findFile, fmt.Sprintf("\t\t\t}\n"))
+		appendToBytes(&findFile, fmt.Sprintf("\t\t}\n"))
+	}
+
+	appendToBytes(&findFile, fmt.Sprintf("\treturn err\n"))
+
+	appendToBytes(&findFile, "}\n")
+
+	///create fetch data for array of data
+	appendToBytes(&findFile, fmt.Sprintf("func (m *%ss)Fetch%sFor%ss()(err error){\n", modelName, detailModelName, modelName))
 
 	if relationshipType == "1" {
 		appendToBytes(&findFile, fmt.Sprintf("\tforeignKeys := map[string]string{}\n"))

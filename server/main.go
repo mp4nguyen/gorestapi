@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"bitbucket.org/restapi/db"
+	"bitbucket.org/restapi/logger"
 	"bitbucket.org/restapi/myjwt"
 	route "bitbucket.org/restapi/server/routes"
 )
@@ -53,6 +54,7 @@ func requestServer(action string) {
 
 func main() {
 	////Initial Mysql, Redis, JWT
+	logger.InitLogger()
 	db.InitMysql()
 	db.InitRedis()
 	myjwt.InitKeys()

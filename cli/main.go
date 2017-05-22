@@ -69,6 +69,7 @@ func appendToBytes(original *([]byte), addMore string) {
 var log = logrus.New()
 
 func main() {
+	// Example of redirecting log output to a new file at runtime
 
 	log.Out = os.Stdout
 
