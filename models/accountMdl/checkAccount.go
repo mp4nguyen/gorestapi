@@ -2,11 +2,9 @@ package accountMdl
 
 import (
 	"errors"
-	"fmt"
-
-	"golang.org/x/crypto/bcrypt"
 
 	"bitbucket.org/restapi/db"
+	"bitbucket.org/restapi/utils"
 	"github.com/go-sql-driver/mysql"
 )
 
@@ -14,7 +12,6 @@ func (m Login) CheckAccount() (isMatch bool, account Account, err error) {
 
 	sqlString := "select password,email,user_type,isEnable,created_by,creation_date,last_updated_by,last_update_date,person_id,doctor_id,patient_id,company_id,emailVerified,realm,credentials,challenges,verificationToken,status,created,lastupdated,id,username from ocs.accounts where username=?"
 
-	fmt.Println(" m.Username = ", m.Username)
 	rs := db.GetDB().QueryRow(sqlString, m.Username)
 
 	row := Account{}
@@ -32,9 +29,10 @@ func (m Login) CheckAccount() (isMatch bool, account Account, err error) {
 		return false, Account{}, errors.New("Username does not exist")
 	}
 
-	errBcrypt := bcrypt.CompareHashAndPassword([]byte(row.Password), []byte(m.Password))
+	errBcrypt := utils.CheckPasswordHash(m.Password, row.Password)
+	//bcrypt.CompareHashAndPassword([]byte(row.Password), []byte(m.Password))
 
-	if errBcrypt != nil {
+	if errBcrypt != false {
 		return false, Account{}, errors.New("Wrong password")
 	} else {
 		return true, row, err

@@ -1,20 +1,23 @@
 package accountMdl
 
-import "log"
-import "bitbucket.org/restapi/db"
+import (
+	"strconv"
 
-func (m *Account)FetchPersonForAccount()(err error){
-	whereCondition := "person_id = strconv.Itoa(m.PersonId)"
-	tempMapData, err := personMdl.MapFind("PersonId",whereCondition, "person_id")
-		tempData, ok := tempMapData[strconv.Itoa(row.PersonId)]
-		if ok {
-			if len(tempData) > 0 {
+	"bitbucket.org/restapi/models/personMdl"
+)
+
+func (m *Account) FetchPerson() (err error) {
+	whereCondition := "person_id = " + strconv.Itoa(m.PersonId)
+	tempMapData, err := personMdl.MapFind("PersonId", whereCondition, "person_id")
+	tempData, ok := tempMapData[strconv.Itoa(m.PersonId)]
+	if ok {
+		if len(tempData) > 0 {
 			m.Person = tempData[0]
-			}
 		}
+	}
 	return err
 }
-func (m *Accounts)FetchPersonForAccounts()(err error){
+func (m *Accounts) FetchPerson() (err error) {
 	foreignKeys := map[string]string{}
 	whereCondition := "person_id in ("
 	for _, row := range *m {
@@ -25,12 +28,12 @@ func (m *Accounts)FetchPersonForAccounts()(err error){
 		}
 	}
 	whereCondition = whereCondition[0:len(whereCondition)-1] + ")"
-	tempMapData, err := personMdl.MapFind("PersonId",whereCondition, "person_id")
+	tempMapData, err := personMdl.MapFind("PersonId", whereCondition, "person_id")
 	for _, row := range *m {
 		tempData, ok := tempMapData[strconv.Itoa(row.PersonId)]
 		if ok {
 			if len(tempData) > 0 {
-			row.Person = tempData[0]
+				row.Person = tempData[0]
 			}
 		}
 	}

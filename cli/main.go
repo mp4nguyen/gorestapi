@@ -127,7 +127,7 @@ func main() {
 
 			// output, _ := json.Marshal(tableColumns.TableColumns)
 			// fmt.Println(string(output))
-
+			creationDateStmt := ""
 			queryFields := ""
 			outputFields := ""
 			modelFields := ""
@@ -141,6 +141,18 @@ func main() {
 
 				modelFields = modelFields + "" + fmt.Sprintf("\t%s %s `json:\"%s\"`\n", fieldName(column.COLUMNNAME), dataType(column.DATATYPE), jsonName(column.COLUMNNAME))
 				if dataType(column.DATATYPE) == "time.Time" {
+					lowerCaseColumnName := strings.ToLower(column.COLUMNNAME)
+					if lowerCaseColumnName == "creation_date" ||
+						lowerCaseColumnName == "created_date" ||
+						lowerCaseColumnName == "created_at" ||
+						lowerCaseColumnName == "createdat" ||
+						lowerCaseColumnName == "last_update_date" ||
+						lowerCaseColumnName == "last_updated_date" ||
+						lowerCaseColumnName == "updated_date" ||
+						lowerCaseColumnName == "updated_at" ||
+						lowerCaseColumnName == "updatedat" {
+						creationDateStmt += "\tinput." + fieldName(column.COLUMNNAME) + " = time.Now().UTC()\n"
+					}
 					modelFieldsForInsert = modelFieldsForInsert + ", input." + fieldName(column.COLUMNNAME) + ".Format(\"2006-01-02 15:04:05\")"
 
 					declareDateFields += "temp" + fieldName(column.COLUMNNAME) + " := mysql.NullTime{} \n"
@@ -173,7 +185,7 @@ func main() {
 			createFindFile(c, folderName, schemaName, tableName, modelName, outputFields, queryFields, declareDateFields, assignDateFields)
 			createMapFindFile(c, folderName, schemaName, tableName, modelName, outputFields, queryFields, declareDateFields, assignDateFields, fieldName(columnKey))
 			createFindByIdFile(c, folderName, schemaName, tableName, modelName, outputFields, queryFields, columnKey, declareDateFields, assignDateFields)
-			createCreateFile(c, folderName, schemaName, tableName, modelName, preFieldsForInsert, modelFieldsForInsert, queryFields)
+			createCreateFile(c, folderName, schemaName, tableName, modelName, preFieldsForInsert, modelFieldsForInsert, queryFields, creationDateStmt)
 			//createFindCtrlFile(c, folderCtrlName, modelName)
 
 		},

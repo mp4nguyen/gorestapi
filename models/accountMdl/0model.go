@@ -36,6 +36,7 @@ type Account struct {
 	Id                int              `json:"id"`
 	Username          string           `json:"username"`
 	Person            personMdl.Person `json:"person"`
+	AccessToken       string           `json:"accessToken"`
 }
 
 type Accounts []*Account
@@ -56,7 +57,7 @@ type baseinfo struct {
 	FirstName  string `json:"firstName"`
 	LastName   string `json:"lastName"`
 	Dob        string `json:"dob"`
-	Gender     bool   `json:"gender"`
+	Gender     string `json:"gender"`
 	Occupation string `json:"occupation"`
 }
 

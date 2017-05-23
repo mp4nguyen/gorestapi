@@ -16,12 +16,12 @@ func createRelationshipFindFile(c *ishell.Context, folderName string, modelName 
 
 	///create fetch data for single data
 
-	appendToBytes(&findFile, fmt.Sprintf("func (m *%s)Fetch%sFor%s()(err error){\n", modelName, detailModelName, modelName))
+	appendToBytes(&findFile, fmt.Sprintf("func (m *%s)Fetch%s()(err error){\n", modelName, detailModelName, modelName))
 
 	if relationshipType == "1" {
-		appendToBytes(&findFile, fmt.Sprintf("\twhereCondition := \"%s = strconv.Itoa(m.%s)\"\n", detailColumnKey, fieldName(detailColumnKey)))
+		appendToBytes(&findFile, fmt.Sprintf("\twhereCondition := \"%s = \" + strconv.Itoa(m.%s) \n", detailColumnKey, fieldName(detailColumnKey)))
 	} else if relationshipType == "2" {
-		appendToBytes(&findFile, fmt.Sprintf("\twhereCondition := \"%s = strconv.Itoa(m.%s)\"\n", detailTableForeignKey, fieldName(detailTableForeignKey)))
+		appendToBytes(&findFile, fmt.Sprintf("\twhereCondition := \"%s = \" + strconv.Itoa(m.%s)\n", detailTableForeignKey, fieldName(detailTableForeignKey)))
 	}
 
 	if relationshipType == "1" {
@@ -47,7 +47,7 @@ func createRelationshipFindFile(c *ishell.Context, folderName string, modelName 
 	appendToBytes(&findFile, "}\n")
 
 	///create fetch data for array of data
-	appendToBytes(&findFile, fmt.Sprintf("func (m *%ss)Fetch%sFor%ss()(err error){\n", modelName, detailModelName, modelName))
+	appendToBytes(&findFile, fmt.Sprintf("func (m *%ss)Fetch%s()(err error){\n", modelName, detailModelName, modelName))
 
 	if relationshipType == "1" {
 		appendToBytes(&findFile, fmt.Sprintf("\tforeignKeys := map[string]string{}\n"))

@@ -9,6 +9,7 @@ import (
 	"bitbucket.org/restapi/logger"
 	"bitbucket.org/restapi/models/accessTokenMdl"
 	"bitbucket.org/restapi/models/accountMdl"
+	"bitbucket.org/restapi/utils"
 )
 
 func LoginAT(w http.ResponseWriter, r *http.Request) {
@@ -26,22 +27,23 @@ func LoginAT(w http.ResponseWriter, r *http.Request) {
 	}
 	output, err := json.Marshal(login)
 	log.Infof("Infor from client = %s", string(output))
-	if err != nil {
-		log.Errorf("Something went wrong (%s)!", err)
-	}
+	utils.ErrorHandler("json marshal ", err, nil)
 
 	isMatch, acc, errCheckAccount := login.CheckAccount()
+	log.Infof("checked username and pass = %s", isMatch)
 
 	if isMatch {
-		acc.FetchPersonForAccount()
+		acc.FetchPerson()
+		at, err := accessTokenMdl.Create(acc.Id)
+		utils.ErrorHandler("Accesstoken generated ", err, nil)
+
+		acc.AccessToken = at
+		log.Infof(" at = %s", at)
+
 		output, err := json.Marshal(acc)
 		log.Infof("Infor from client = %s", string(output))
-		if err != nil {
-			log.Errorf("Something went wrong (%s)!", err)
-		}
+		utils.ErrorHandler("json marshal ", err, nil)
 
-		at, _ := accessTokenMdl.Create(1)
-		log.Infof(" at = %s", at)
 		fmt.Fprintln(w, string(output))
 	} else {
 		fmt.Fprintln(w, errCheckAccount)

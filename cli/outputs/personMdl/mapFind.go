@@ -1,13 +1,7 @@
 package personMdl
 
-import (
-	"log"
-	"reflect"
-	"strconv"
-
-	"bitbucket.org/restapi/db"
-	"github.com/go-sql-driver/mysql"
-)
+import "log"
+import "bitbucket.org/restapi/db"
 
 func getField(v *Person, field string) string {
 	r := reflect.ValueOf(v)
@@ -20,7 +14,7 @@ func getField(v *Person, field string) string {
 		return ""
 	}
 }
-func MapFind(groupByField string, where string, orderBy string) (persons map[string][]Person, err error) {
+func MapFind(groupByField string,where string, orderBy string)(persons map[string][]Person,err error){
 	sqlString := "select person_id,isEnable,title,first_name,last_name,dob,gender,phone,mobile,occupation,address,suburb_district,ward,postcode,state_province,country,isPatient,isDoctor,created_by,creation_date,last_updated_by,last_update_date,email,source_id,avatar_id,signature_id from ocs.people"
 	if len(where) > 0 {
 		sqlString += (" where " + where)
@@ -37,14 +31,15 @@ func MapFind(groupByField string, where string, orderBy string) (persons map[str
 	response := map[string][]Person{}
 	for rows.Next() {
 		row := Person{}
-		tempDob := mysql.NullTime{}
-		tempCreationDate := mysql.NullTime{}
-		tempLastUpdateDate := mysql.NullTime{}
+		tempDob := mysql.NullTime{} 
+tempCreationDate := mysql.NullTime{} 
+tempLastUpdateDate := mysql.NullTime{} 
 
-		rows.Scan(&row.PersonId, &row.IsEnable, &row.Title, &row.FirstName, &row.LastName, &tempDob, &row.Gender, &row.Phone, &row.Mobile, &row.Occupation, &row.Address, &row.SuburbDistrict, &row.Ward, &row.Postcode, &row.StateProvince, &row.Country, &row.IsPatient, &row.IsDoctor, &row.CreatedBy, &tempCreationDate, &row.LastUpdatedBy, &tempLastUpdateDate, &row.Email, &row.SourceId, &row.AvatarId, &row.SignatureId)
-		row.Dob = tempDob.Time
-		row.CreationDate = tempCreationDate.Time
-		row.LastUpdateDate = tempLastUpdateDate.Time
+		rows.Scan(&row.PersonId,&row.IsEnable,&row.Title,&row.FirstName,&row.LastName,&tempDob,&row.Gender,&row.Phone,&row.Mobile,&row.Occupation,&row.Address,&row.SuburbDistrict,&row.Ward,&row.Postcode,&row.StateProvince,&row.Country,&row.IsPatient,&row.IsDoctor,&row.CreatedBy,&tempCreationDate,&row.LastUpdatedBy,&tempLastUpdateDate,&row.Email,&row.SourceId,&row.AvatarId,&row.SignatureId)
+		row.Dob = tempDob.Time 
+row.CreationDate = tempCreationDate.Time 
+row.LastUpdateDate = tempLastUpdateDate.Time 
+
 
 		groupByFieldValue := getField(&row, groupByField)
 		group, ok := response[groupByFieldValue]
