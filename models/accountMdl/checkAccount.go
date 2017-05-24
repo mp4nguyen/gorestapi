@@ -29,10 +29,10 @@ func (m Login) CheckAccount() (isMatch bool, account Account, err error) {
 		return false, Account{}, errors.New("Username does not exist")
 	}
 
-	errBcrypt := utils.CheckPasswordHash(m.Password, row.Password)
-	//bcrypt.CompareHashAndPassword([]byte(row.Password), []byte(m.Password))
+	isMatchAcc := utils.CheckPasswordHash(m.Password, row.Password)
+	//err = bcrypt.CompareHashAndPassword([]byte(row.Password), []byte(m.Password))
 
-	if errBcrypt != false {
+	if isMatchAcc == false {
 		return false, Account{}, errors.New("Wrong password")
 	} else {
 		return true, row, err

@@ -27,4 +27,22 @@ var accountroutes = Routes{
 		"/signup",
 		accountCtrl.Signup,
 	},
+	Route{
+		"NewMember",
+		"POST",
+		"/newMember",
+		accountCtrl.NewMember,
+	},
+	Route{
+		"UpdateMember",
+		"POST",
+		"/updateMember",
+		accountCtrl.UpdateMember,
+	},
+	Route{
+		"ChangePassword",
+		"POST",
+		"/changePassword",
+		accountCtrl.ChangePassword,
+	},
 }
