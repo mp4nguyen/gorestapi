@@ -2,7 +2,10 @@ package db
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
+
+	"bitbucket.org/restapi/utils"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -29,4 +32,48 @@ func InitMysql() {
 //GetDB ...
 func GetDB() *sql.DB {
 	return database
+}
+
+func Transaction(txFn func(*sql.Tx) error) (err error) {
+	tx, err := GetDB().Begin()
+	if err != nil {
+		utils.ErrorHandler("Failed to create mysql transaction", err, nil)
+		return
+	}
+	defer func() {
+		if err != nil {
+			utils.ErrorHandler("rollback mysql transaction", err, nil)
+			tx.Rollback()
+			return
+		}
+		err = tx.Commit()
+	}()
+	err = txFn(tx)
+	return err
+}
+
+func Update(tableName string, m interface{}, tx *sql.Tx) (noOfEffects int64, err error) {
+
+	sqlString, sqlVals := utils.BuildUpdateSQLString(tableName, m)
+	stmt, errStmt := GetDB().Prepare(sqlString)
+	if tx != nil {
+		stmt, errStmt = tx.Prepare(sqlString)
+	}
+	defer stmt.Close()
+
+	if errStmt != nil {
+		fmt.Println("errStmt = ", errStmt)
+		return 0, errStmt
+	}
+
+	res, errInsert := stmt.Exec(sqlVals...)
+	if errInsert != nil {
+		fmt.Println("errInsert = ", errInsert)
+		return 0, errInsert
+	}
+
+	rnoOfRows, _ := res.RowsAffected()
+
+	return rnoOfRows, err
+
 }

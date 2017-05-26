@@ -54,7 +54,7 @@ func dataType(mysqlDataType string) string {
 		return "string"
 	} else if mysqlDataType == "int" || mysqlDataType == "tinyint" {
 		return "int"
-	} else if mysqlDataType == "datetime" {
+	} else if mysqlDataType == "datetime" || mysqlDataType == "date" {
 		return "time.Time"
 	} else {
 		return mysqlDataType
@@ -139,7 +139,7 @@ func main() {
 			for index, column := range tableColumns.TableColumns {
 				queryFields = queryFields + "," + column.COLUMNNAME
 
-				modelFields = modelFields + "" + fmt.Sprintf("\t%s %s `json:\"%s\"`\n", fieldName(column.COLUMNNAME), dataType(column.DATATYPE), jsonName(column.COLUMNNAME))
+				modelFields = modelFields + "" + fmt.Sprintf("\t%s %s `json:\"%s\" mysql:\"%s\"`\n", fieldName(column.COLUMNNAME), dataType(column.DATATYPE), jsonName(column.COLUMNNAME), column.COLUMNNAME)
 				if dataType(column.DATATYPE) == "time.Time" {
 					lowerCaseColumnName := strings.ToLower(column.COLUMNNAME)
 					if lowerCaseColumnName == "creation_date" ||

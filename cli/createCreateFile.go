@@ -15,7 +15,7 @@ func createCreateFile(c *ishell.Context, folderName string, schemaName string, t
 	appendToBytes(&findFile, fmt.Sprintf("import \"log\"\n"))
 	appendToBytes(&findFile, fmt.Sprintf("import \"bitbucket.org/restapi/db\"\n\n"))
 
-	appendToBytes(&findFile, fmt.Sprintf("func (inputs %ss)Create() (noOfRows int64, lastId int64,err error) {\n", modelName))
+	appendToBytes(&findFile, fmt.Sprintf("func (inputs %ss)Create(tx *sql.Tx) (noOfRows int64, lastId int64,err error) {\n", modelName))
 	appendToBytes(&findFile, fmt.Sprintf("\tsqlStr := \"INSERT INTO %s(%s) VALUES \"\n", tableName, queryFields))
 	appendToBytes(&findFile, "\tvals := []interface{}{}\n")
 	appendToBytes(&findFile, "\tfor _, input := range inputs {\n")
@@ -26,6 +26,10 @@ func createCreateFile(c *ishell.Context, folderName string, schemaName string, t
 	appendToBytes(&findFile, "\t}\n")
 	appendToBytes(&findFile, "\tsqlStr = sqlStr[0 : len(sqlStr)-1]\n")
 	appendToBytes(&findFile, "\tstmt, errStmt := db.GetDB().Prepare(sqlStr)\n")
+	appendToBytes(&findFile, "\tif tx != nil {\n")
+	appendToBytes(&findFile, "\t\tstmt, errStmt = tx.Prepare(sqlStr)\n")
+	appendToBytes(&findFile, "\t}\n")
+
 	appendToBytes(&findFile, "\tdefer stmt.Close()\n")
 
 	appendToBytes(&findFile, "\tif errStmt != nil {\n")
@@ -42,7 +46,7 @@ func createCreateFile(c *ishell.Context, folderName string, schemaName string, t
 	appendToBytes(&findFile, "\treturn rnoOfRows, rlastId, err\n")
 	appendToBytes(&findFile, "}\n")
 
-	appendToBytes(&findFile, fmt.Sprintf("func (input %s)Create() (noOfRows int64, lastId int64,err error) {\n", modelName))
+	appendToBytes(&findFile, fmt.Sprintf("func (input %s)Create(tx *sql.Tx) (noOfRows int64, lastId int64,err error) {\n", modelName))
 	appendToBytes(&findFile, fmt.Sprintf("\tsqlStr := \"INSERT INTO %s(%s) VALUES \"\n", tableName, queryFields))
 	appendToBytes(&findFile, "\tvals := []interface{}{}\n")
 	appendToBytes(&findFile, fmt.Sprintf("\t\t%s\n", creationDateStmt))
@@ -50,6 +54,10 @@ func createCreateFile(c *ishell.Context, folderName string, schemaName string, t
 	appendToBytes(&findFile, fmt.Sprintf("\tvals = append(vals, %s)\n", modelFieldsForInsert))
 
 	appendToBytes(&findFile, "\tstmt, errStmt := db.GetDB().Prepare(sqlStr)\n")
+	appendToBytes(&findFile, "\tif tx != nil {\n")
+	appendToBytes(&findFile, "\t\tstmt, errStmt = tx.Prepare(sqlStr)\n")
+	appendToBytes(&findFile, "\t}\n")
+
 	appendToBytes(&findFile, "\tdefer stmt.Close()\n")
 
 	appendToBytes(&findFile, "\tif errStmt != nil {\n")

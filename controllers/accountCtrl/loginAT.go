@@ -5,15 +5,17 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 
 	"bitbucket.org/restapi/logger"
 	"bitbucket.org/restapi/models/accessTokenMdl"
 	"bitbucket.org/restapi/models/accountMdl"
-	"bitbucket.org/restapi/models/personMdl"
 	"bitbucket.org/restapi/utils"
 )
 
 func LoginAT(w http.ResponseWriter, r *http.Request) {
+	start := time.Now()
+
 	log := logger.Log
 	loginRes := accountMdl.LoginRes{}
 	login := accountMdl.Login{}
@@ -31,14 +33,28 @@ func LoginAT(w http.ResponseWriter, r *http.Request) {
 	log.Infof("Infor from client = %s", string(output))
 	utils.ErrorHandler("json marshal ", err, nil)
 
+	log.Infof(
+		"duration0 = %s",
+		time.Since(start),
+	)
 	isMatch, acc, errCheckAccount := login.CheckAccount()
 	log.Infof("checked username and pass = %s", isMatch)
 
+	log.Infof(
+		"duration = %s",
+		time.Since(start),
+	)
+
 	if isMatch {
 		acc.FetchPerson()
+		acc.Person.FetchPatientRelationshipV()
 		at, err := accessTokenMdl.Create(acc.Id)
 		utils.ErrorHandler("Accesstoken generated ", err, nil)
 
+		log.Infof(
+			"duration2 = %s",
+			time.Since(start),
+		)
 		acc.AccessToken = at
 		log.Infof(" at = %s", at)
 		/////prepare object to return to client
@@ -56,7 +72,7 @@ func LoginAT(w http.ResponseWriter, r *http.Request) {
 			Postcode:       acc.Person.Postcode,
 			StateProvince:  acc.Person.StateProvince,
 			Country:        acc.Person.Country,
-			Profiles:       []personMdl.Person{acc.Person},
+			Profile:        acc.Person,
 			AccessToken:    acc.AccessToken,
 		}
 
@@ -66,6 +82,12 @@ func LoginAT(w http.ResponseWriter, r *http.Request) {
 		output, err := json.Marshal(loginRes)
 		log.Infof("Infor from client = %s", string(output))
 		utils.ErrorHandler("json marshal ", err, nil)
+
+		log.Infof(
+			"duration3 = %s",
+			time.Since(start),
+		)
+
 		fmt.Fprintln(w, string(output))
 	} else {
 		loginRes.IsLogin = false

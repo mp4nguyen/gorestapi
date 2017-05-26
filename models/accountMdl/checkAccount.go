@@ -2,18 +2,25 @@ package accountMdl
 
 import (
 	"errors"
+	"time"
 
 	"bitbucket.org/restapi/db"
+	"bitbucket.org/restapi/logger"
 	"bitbucket.org/restapi/utils"
 	"github.com/go-sql-driver/mysql"
 )
 
 func (m Login) CheckAccount() (isMatch bool, account Account, err error) {
-
+	log := logger.Log
+	start := time.Now()
 	sqlString := "select password,email,user_type,isEnable,created_by,creation_date,last_updated_by,last_update_date,person_id,doctor_id,patient_id,company_id,emailVerified,realm,credentials,challenges,verificationToken,status,created,lastupdated,id,username from ocs.accounts where username=?"
 
 	rs := db.GetDB().QueryRow(sqlString, m.Username)
 
+	log.Infof(
+		"sql duration = %s",
+		time.Since(start),
+	)
 	row := Account{}
 	tempCreationDate := mysql.NullTime{}
 	tempLastUpdateDate := mysql.NullTime{}
@@ -24,12 +31,20 @@ func (m Login) CheckAccount() (isMatch bool, account Account, err error) {
 	row.LastUpdateDate = tempLastUpdateDate.Time
 	row.Created = tempCreated.Time
 	row.Lastupdated = tempLastupdated.Time
-
+	log.Infof(
+		"sql duration2 = %s",
+		time.Since(start),
+	)
 	if row.Password == "" {
 		return false, Account{}, errors.New("Username does not exist")
 	}
 
 	isMatchAcc := utils.CheckPasswordHash(m.Password, row.Password)
+
+	log.Infof(
+		"sql duration3 = %s",
+		time.Since(start),
+	)
 	//err = bcrypt.CompareHashAndPassword([]byte(row.Password), []byte(m.Password))
 
 	if isMatchAcc == false {

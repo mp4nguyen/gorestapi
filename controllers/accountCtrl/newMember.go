@@ -1,6 +1,7 @@
 package accountCtrl
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -11,6 +12,7 @@ import (
 	"bitbucket.org/restapi/logger"
 	"bitbucket.org/restapi/models/accountMdl"
 	"bitbucket.org/restapi/models/patientMdl"
+	"bitbucket.org/restapi/models/patientRelationshipMdl"
 	"bitbucket.org/restapi/models/personMdl"
 	"bitbucket.org/restapi/utils"
 )
@@ -32,9 +34,9 @@ func NewMember(w http.ResponseWriter, r *http.Request) {
 	log.Infof("Infor from client = %s", string(output))
 	utils.ErrorHandler("Json.Marshal for req body", err, nil)
 
-	tx, err := db.GetDB().Begin()
-	utils.ErrorHandler("Error when creating transaction", err, nil)
-	if err == nil {
+	memberRes := personMdl.CreatedMemberRes{}
+
+	err = db.Transaction(func(tx *sql.Tx) error {
 		creatingPerson := personMdl.Person{}
 		creatingPerson.Title = member.Baseinfo.Title
 		creatingPerson.FirstName = member.Baseinfo.FirstName
@@ -50,13 +52,22 @@ func NewMember(w http.ResponseWriter, r *http.Request) {
 		creatingPerson.Country = member.Contact.Country
 		creatingPerson.Postcode = member.Contact.Postcode
 		creatingPerson.Email = member.Signup.Email
+		creatingPerson.GPFirstName = member.GP.FirstName
+		creatingPerson.GPLastName = member.GP.LastName
+		creatingPerson.GPContact = member.GP.ContactNumber
+		creatingPerson.ClinicName = member.GP.Clinic
+		creatingPerson.MedicareNo = member.GP.MedicareNo
+		creatingPerson.MedicareRef = member.GP.MedicareRef
+		creatingPerson.MedicareExpired, err = time.Parse(time.RFC3339, member.GP.MedicareExpired)
 		creatingPerson.IsEnable = 1
 		creatingPerson.IsPatient = 1
 		output, _ = json.Marshal(creatingPerson)
 		log.Infof(" creating Person object  = %s", string(output))
-
 		noOfPerson, lastPersonId, creatingPersonErr := creatingPerson.Create(tx)
 		utils.ErrorHandler("Failed to create person", creatingPersonErr, tx)
+		if creatingPersonErr != nil {
+			return creatingPersonErr
+		}
 		log.Infof("noOfPerson=%s, lastPersonId=%s, creatingPersonErr=%s", noOfPerson, lastPersonId, creatingPersonErr)
 
 		creatingPatient := patientMdl.Patient{}
@@ -65,11 +76,33 @@ func NewMember(w http.ResponseWriter, r *http.Request) {
 		creatingPatient.UserId = 1
 		noOfPatient, lastPatientId, creatingPatientErr := creatingPatient.Create(tx)
 		utils.ErrorHandler("Failed to create patient", creatingPatientErr, tx)
+		if creatingPatientErr != nil {
+			return creatingPatientErr
+		}
 		log.Infof("noOfPatient=%s, lastPatientId=%s, creatingPatientErr=%s", noOfPatient, lastPatientId, creatingPatientErr)
 
-		tx.Commit()
+		creatingPatientRel := patientRelationshipMdl.PatientRelationship{}
+		creatingPatientRel.FatherPersonId = member.Baseinfo.FatherPersonId
+		creatingPatientRel.PatientId = int(lastPatientId)
+		creatingPatientRel.PersonId = int(lastPersonId)
+		creatingPatientRel.IsEnable = 1
+		creatingPatientRel.RelationshipType = "FAMILY"
+		noOfPatientRel, lastPatientRelId, creatingPatientRelErr := creatingPatientRel.Create(tx)
+		utils.ErrorHandler("Failed to create patient relationship", creatingPatientRelErr, tx)
+		log.Infof("noOfPatient=%s, lastPatientId=%s, creatingPatientErr=%s", noOfPatientRel, lastPatientRelId, creatingPatientRelErr)
+
+		memberRes.PatientId = int(lastPatientId)
+		memberRes.PersonId = int(lastPersonId)
+		return creatingPatientRelErr
+	})
+
+	if err != nil {
+		memberRes.IsSuccess = false
+		memberRes.Reason = err.Error()
 	}
 
-	fmt.Fprintln(w, "Doing...")
+	output, err = json.Marshal(memberRes)
+	utils.LogError("failed to json marshal memberRes", err)
+	fmt.Fprintln(w, string(output))
 
 }

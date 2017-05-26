@@ -1,9 +1,9 @@
-package patientRelationshipMdl
+package patientRelationshipVMdl
 
 import "log"
 import "bitbucket.org/restapi/db"
 
-func getField(v *PatientRelationship, field string) string {
+func getField(v *PatientRelationshipV, field string) string {
 	r := reflect.ValueOf(v)
 	f := reflect.Indirect(r).FieldByName(field)
 	if f.Kind() == reflect.Int {
@@ -14,7 +14,7 @@ func getField(v *PatientRelationship, field string) string {
 		return ""
 	}
 }
-func MapFind(groupByField string,where string, orderBy string)(patientRelationships map[string][]PatientRelationship,err error){
+func MapFind(groupByField string,where string, orderBy string)(patientRelationshipVs map[string][]PatientRelationshipV,err error){
 	sqlString := "select relationship_id,relationship_type,patient_id,person_id,father_person_id,isEnable,created_by,creation_date,last_updated_by,last_update_date,title,first_name,last_name,dob,gender,phone,mobile,occupation,address,suburb_district,ward,postcode,state_province,country,email,avatar_id,avatar_url,signature_id,signature_url,GP_First_name,GP_Last_name,Clinic_Name,GP_Contact,Medicare_No,Medicare_ref,Medicare_Expired from ocs.patient_relationships_v"
 	if len(where) > 0 {
 		sqlString += (" where " + where)
@@ -24,21 +24,23 @@ func MapFind(groupByField string,where string, orderBy string)(patientRelationsh
 	}
 	rows, err := db.GetDB().Query(sqlString)
 	if err != nil {
-		log.Println("patientRelationshipMdl.find.go: All() err = ", err)
+		log.Println("patientRelationshipVMdl.find.go: All() err = ", err)
 	}
 	defer rows.Close()
 
-	response := map[string][]PatientRelationship{}
+	response := map[string][]PatientRelationshipV{}
 	for rows.Next() {
-		row := PatientRelationship{}
+		row := PatientRelationshipV{}
 		tempCreationDate := mysql.NullTime{} 
 tempLastUpdateDate := mysql.NullTime{} 
 tempDob := mysql.NullTime{} 
+tempMedicareExpired := mysql.NullTime{} 
 
-		rows.Scan(&row.RelationshipId,&row.RelationshipType,&row.PatientId,&row.PersonId,&row.FatherPersonId,&row.IsEnable,&row.CreatedBy,&tempCreationDate,&row.LastUpdatedBy,&tempLastUpdateDate,&row.Title,&row.FirstName,&row.LastName,&tempDob,&row.Gender,&row.Phone,&row.Mobile,&row.Occupation,&row.Address,&row.SuburbDistrict,&row.Ward,&row.Postcode,&row.StateProvince,&row.Country,&row.Email,&row.AvatarId,&row.AvatarUrl,&row.SignatureId,&row.SignatureUrl,&row.GPFirstName,&row.GPLastName,&row.ClinicName,&row.GPContact,&row.MedicareNo,&row.MedicareRef,&row.MedicareExpired)
+		rows.Scan(&row.RelationshipId,&row.RelationshipType,&row.PatientId,&row.PersonId,&row.FatherPersonId,&row.IsEnable,&row.CreatedBy,&tempCreationDate,&row.LastUpdatedBy,&tempLastUpdateDate,&row.Title,&row.FirstName,&row.LastName,&tempDob,&row.Gender,&row.Phone,&row.Mobile,&row.Occupation,&row.Address,&row.SuburbDistrict,&row.Ward,&row.Postcode,&row.StateProvince,&row.Country,&row.Email,&row.AvatarId,&row.AvatarUrl,&row.SignatureId,&row.SignatureUrl,&row.GPFirstName,&row.GPLastName,&row.ClinicName,&row.GPContact,&row.MedicareNo,&row.MedicareRef,&tempMedicareExpired)
 		row.CreationDate = tempCreationDate.Time 
 row.LastUpdateDate = tempLastUpdateDate.Time 
 row.Dob = tempDob.Time 
+row.MedicareExpired = tempMedicareExpired.Time 
 
 
 		groupByFieldValue := getField(&row, groupByField)
@@ -47,7 +49,7 @@ row.Dob = tempDob.Time
 			group = append(group, row)
 			response[groupByFieldValue] = group
 		} else {
-			response[groupByFieldValue] = []PatientRelationship{row}
+			response[groupByFieldValue] = []PatientRelationshipV{row}
 		}
 	}
 

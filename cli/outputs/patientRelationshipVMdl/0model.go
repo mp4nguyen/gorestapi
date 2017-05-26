@@ -1,8 +1,8 @@
-package patientRelationshipMdl
+package patientRelationshipVMdl
 
 import "time"
 
-type PatientRelationship struct{
+type PatientRelationshipV struct{
 	RelationshipId int `json:"relationshipId"`
 	RelationshipType string `json:"relationshipType"`
 	PatientId int `json:"patientId"`
@@ -38,7 +38,7 @@ type PatientRelationship struct{
 	GPContact string `json:"gPContact"`
 	MedicareNo string `json:"medicareNo"`
 	MedicareRef string `json:"medicareRef"`
-	MedicareExpired date `json:"medicareExpired"`
+	MedicareExpired time.Time `json:"medicareExpired"`
 	}
 
-type PatientRelationships []*PatientRelationship
+type PatientRelationshipVs []*PatientRelationshipV

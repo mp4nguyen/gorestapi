@@ -10,7 +10,6 @@ import (
 	"bitbucket.org/restapi/db"
 	"bitbucket.org/restapi/logger"
 	"bitbucket.org/restapi/models/accountMdl"
-	"bitbucket.org/restapi/models/patientMdl"
 	"bitbucket.org/restapi/models/personMdl"
 	"bitbucket.org/restapi/utils"
 )
@@ -32,54 +31,32 @@ func UpdateMember(w http.ResponseWriter, r *http.Request) {
 	log.Infof("Infor from client = %s", string(output))
 	utils.ErrorHandler("Json.Marshal for req body", err, nil)
 
-	tx, err := db.GetDB().Begin()
-	utils.ErrorHandler("Error when creating transaction", err, nil)
-	if err == nil {
-		creatingPerson := personMdl.Person{}
-		creatingPerson.Title = member.Baseinfo.Title
-		creatingPerson.FirstName = member.Baseinfo.FirstName
-		creatingPerson.LastName = member.Baseinfo.LastName
-		creatingPerson.Dob, err = time.Parse(time.RFC3339, member.Baseinfo.Dob)
-		utils.ErrorHandler("parse time err", err, tx)
-		creatingPerson.Gender = member.Baseinfo.Gender
-		creatingPerson.Occupation = member.Baseinfo.Occupation
-		creatingPerson.Mobile = member.Contact.Phone
-		creatingPerson.Address = member.Contact.Address
-		creatingPerson.SuburbDistrict = member.Contact.Suburb
-		creatingPerson.StateProvince = member.Contact.State
-		creatingPerson.Country = member.Contact.Country
-		creatingPerson.Postcode = member.Contact.Postcode
-		creatingPerson.Email = member.Signup.Email
-		creatingPerson.IsEnable = 1
-		creatingPerson.IsPatient = 1
-		output, _ = json.Marshal(creatingPerson)
-		log.Infof(" creating Person object  = %s", string(output))
-
-		noOfPerson, lastPersonId, creatingPersonErr := creatingPerson.Create(tx)
-		utils.ErrorHandler("Failed to create person", creatingPersonErr, tx)
-		log.Infof("noOfPerson=%s, lastPersonId=%s, creatingPersonErr=%s", noOfPerson, lastPersonId, creatingPersonErr)
-
-		creatingPatient := patientMdl.Patient{}
-		creatingPatient.IsEnable = 1
-		creatingPatient.PersonId = int(lastPersonId)
-		creatingPatient.UserId = 1
-		noOfPatient, lastPatientId, creatingPatientErr := creatingPatient.Create(tx)
-		utils.ErrorHandler("Failed to create patient", creatingPatientErr, tx)
-		log.Infof("noOfPatient=%s, lastPatientId=%s, creatingPatientErr=%s", noOfPatient, lastPatientId, creatingPatientErr)
-
-		creatingAccount := accountMdl.Account{}
-		creatingAccount.Username = member.Signup.Username
-		creatingAccount.Password, err = utils.HashPassword(member.Signup.Password)
-		creatingAccount.Email = member.Signup.Email
-		creatingAccount.PersonId = int(lastPersonId)
-		creatingAccount.PatientId = int(lastPatientId)
-		creatingAccount.IsEnable = 1
-		creatingAccount.UserType = "PATIENT"
-		noOfAcc, lastAccId, creatingAccErr := creatingAccount.Create(tx)
-		utils.ErrorHandler("Failed to create ACCOUNT", creatingAccErr, tx)
-		log.Infof("noOfAcc=%s, lastAccId=%s, creatingAccErr=%s", noOfAcc, lastAccId, creatingAccErr)
-		tx.Commit()
-	}
+	updatingMember := personMdl.UpdatingMember{}
+	updatingMember.PersonId = member.Baseinfo.PersonId
+	updatingMember.Title = member.Baseinfo.Title
+	updatingMember.FirstName = member.Baseinfo.FirstName
+	updatingMember.LastName = member.Baseinfo.LastName
+	updatingMember.Occupation = member.Baseinfo.Occupation
+	updatingMember.Gender = member.Baseinfo.Gender
+	updatingMember.Dob, err = time.Parse(time.RFC3339, member.Baseinfo.Dob)
+	utils.LogError("Parse DOB ", err)
+	updatingMember.Address = member.Contact.Address
+	updatingMember.SuburbDistrict = member.Contact.Suburb
+	updatingMember.StateProvince = member.Contact.State
+	updatingMember.Postcode = member.Contact.Postcode
+	updatingMember.Country = member.Contact.Country
+	updatingMember.Mobile = member.Contact.Phone
+	updatingMember.GPFirstName = member.GP.FirstName
+	updatingMember.GPLastName = member.GP.LastName
+	updatingMember.ClinicName = member.GP.Clinic
+	updatingMember.GPContact = member.GP.ContactNumber
+	updatingMember.MedicareNo = member.GP.MedicareNo
+	updatingMember.MedicareRef = member.GP.MedicareRef
+	updatingMember.MedicareExpired, err = time.Parse(time.RFC3339, member.GP.MedicareExpired)
+	utils.LogError("Parse MedicareExpired ", err)
+	noOfRow, err := db.Update("people", updatingMember, nil)
+	utils.LogError("Update member", err)
+	log.Infof("Updated people %s row effected", noOfRow)
 
 	fmt.Fprintln(w, "Doing...")
 
