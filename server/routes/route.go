@@ -32,5 +32,6 @@ func NewRouter() *mux.Router {
 	createRouter(router, userroutes)
 	createRouter(router, calendarroutes)
 	createRouter(router, accountroutes)
+	createRouter(router, skinrequestroutes)
 	return router
 }
