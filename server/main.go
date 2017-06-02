@@ -72,8 +72,8 @@ func main() {
 	////Config and start the server
 	server := http.Server{
 		Addr:         ":" + port,
-		ReadTimeout:  1 * time.Second,
-		WriteTimeout: 3 * time.Second,
+		ReadTimeout:  60 * time.Second,
+		WriteTimeout: 60 * time.Second,
 	}
 	requestServer("addServer")
 	server.ListenAndServe()
