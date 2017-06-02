@@ -8,6 +8,7 @@ import (
 
 type PatientAccountRes struct {
 	PersonId       int              `json:"personId"`
+	PatientId      int              `json:"patientId"`
 	Username       string           `json:"username"`
 	Title          string           `json:"title"`
 	FirstName      string           `json:"firstName"`

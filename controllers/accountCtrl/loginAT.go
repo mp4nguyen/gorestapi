@@ -60,6 +60,7 @@ func LoginAT(w http.ResponseWriter, r *http.Request) {
 		/////prepare object to return to client
 		patientAccRes := accountMdl.PatientAccountRes{
 			PersonId:       acc.PersonId,
+			PatientId:      acc.PatientId,
 			Username:       acc.Username,
 			Title:          acc.Person.Title,
 			FirstName:      acc.Person.FirstName,

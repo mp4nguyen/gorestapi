@@ -3,6 +3,7 @@ package personMdl
 import (
 	"time"
 
+	"bitbucket.org/restapi/models/patientAppointmentMdl"
 	"bitbucket.org/restapi/models/patientRelationshipVMdl"
 )
 
@@ -41,6 +42,7 @@ type Person struct {
 	MedicareRef     string                                         `json:"medicareRef"`
 	MedicareExpired time.Time                                      `json:"medicareExpired"`
 	Relationships   []patientRelationshipVMdl.PatientRelationshipV `json:"relationshipss"`
+	Appointments    []patientAppointmentMdl.PatientAppointment     `json:"appointmentss"`
 }
 
 type Persons []*Person

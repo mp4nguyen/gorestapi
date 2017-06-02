@@ -64,7 +64,7 @@ func NewMember(w http.ResponseWriter, r *http.Request) {
 		output, _ = json.Marshal(creatingPerson)
 		log.Infof(" creating Person object  = %s", string(output))
 		noOfPerson, lastPersonId, creatingPersonErr := creatingPerson.Create(tx)
-		utils.ErrorHandler("Failed to create person", creatingPersonErr, tx)
+		utils.LogError("Failed to create person", creatingPersonErr)
 		if creatingPersonErr != nil {
 			return creatingPersonErr
 		}
@@ -75,7 +75,7 @@ func NewMember(w http.ResponseWriter, r *http.Request) {
 		creatingPatient.PersonId = int(lastPersonId)
 		creatingPatient.UserId = 1
 		noOfPatient, lastPatientId, creatingPatientErr := creatingPatient.Create(tx)
-		utils.ErrorHandler("Failed to create patient", creatingPatientErr, tx)
+		utils.LogError("Failed to create patient", creatingPatientErr)
 		if creatingPatientErr != nil {
 			return creatingPatientErr
 		}
@@ -88,7 +88,7 @@ func NewMember(w http.ResponseWriter, r *http.Request) {
 		creatingPatientRel.IsEnable = 1
 		creatingPatientRel.RelationshipType = "FAMILY"
 		noOfPatientRel, lastPatientRelId, creatingPatientRelErr := creatingPatientRel.Create(tx)
-		utils.ErrorHandler("Failed to create patient relationship", creatingPatientRelErr, tx)
+		utils.LogError("Failed to create patient relationship", creatingPatientRelErr)
 		log.Infof("noOfPatient=%s, lastPatientId=%s, creatingPatientErr=%s", noOfPatientRel, lastPatientRelId, creatingPatientRelErr)
 
 		memberRes.PatientId = int(lastPatientId)
