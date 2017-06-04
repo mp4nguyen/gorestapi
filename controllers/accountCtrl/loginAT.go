@@ -48,6 +48,9 @@ func LoginAT(w http.ResponseWriter, r *http.Request) {
 	if isMatch {
 		acc.FetchPerson()
 		acc.Person.FetchPatientRelationshipV()
+		//acc.Person.FetchPatientAppointment()
+		//acc.Person.Relationships.FetchPatientAppointment()
+		fmt.Println("======> account = ", acc)
 		at, err := accessTokenMdl.Create(acc.Id)
 		utils.ErrorHandler("Accesstoken generated ", err, nil)
 

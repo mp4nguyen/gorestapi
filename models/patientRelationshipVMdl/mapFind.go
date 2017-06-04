@@ -20,7 +20,7 @@ func getField(v *PatientRelationshipV, field string) string {
 		return ""
 	}
 }
-func MapFind(groupByField string, where string, orderBy string) (patientRelationshipVs map[string][]PatientRelationshipV, err error) {
+func MapFind(groupByField string, where string, orderBy string) (patientRelationshipVs map[string]PatientRelationshipVs, err error) {
 	sqlString := "select relationship_id,relationship_type,patient_id,person_id,father_person_id,isEnable,created_by,creation_date,last_updated_by,last_update_date,title,first_name,last_name,dob,gender,phone,mobile,occupation,address,suburb_district,ward,postcode,state_province,country,email,avatar_id,avatar_url,signature_id,signature_url,GP_First_name,GP_Last_name,Clinic_Name,GP_Contact,Medicare_No,Medicare_ref,Medicare_Expired from ocs.patient_relationships_v"
 	if len(where) > 0 {
 		sqlString += (" where " + where)
@@ -34,7 +34,7 @@ func MapFind(groupByField string, where string, orderBy string) (patientRelation
 	}
 	defer rows.Close()
 
-	response := map[string][]PatientRelationshipV{}
+	response := map[string]PatientRelationshipVs{}
 	for rows.Next() {
 		row := PatientRelationshipV{}
 		tempCreationDate := mysql.NullTime{}
@@ -51,10 +51,10 @@ func MapFind(groupByField string, where string, orderBy string) (patientRelation
 		groupByFieldValue := getField(&row, groupByField)
 		group, ok := response[groupByFieldValue]
 		if ok {
-			group = append(group, row)
+			group = append(group, &row)
 			response[groupByFieldValue] = group
 		} else {
-			response[groupByFieldValue] = []PatientRelationshipV{row}
+			response[groupByFieldValue] = PatientRelationshipVs{&row}
 		}
 	}
 

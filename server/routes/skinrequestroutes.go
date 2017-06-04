@@ -9,4 +9,10 @@ var skinrequestroutes = Routes{
 		"/uploadPhoto",
 		skinRequestCtrl.UploadHandler,
 	},
+	Route{
+		"GetAppointment",
+		"POST",
+		"/getAppointment",
+		skinRequestCtrl.GetAppointment,
+	},
 }
