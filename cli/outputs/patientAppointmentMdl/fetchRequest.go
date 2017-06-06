@@ -8,7 +8,7 @@ func (m *PatientAppointment)FetchRequest()(err error){
 	tempMapData, err := requestMdl.MapFind("ApptId",whereCondition, "appt_id")
 		tempData, ok := tempMapData[strconv.Itoa(m.ApptId)]
 		if ok {
-			m.Requests = tempData
+			m.Request = tempData
 		}
 	return err
 }
@@ -22,7 +22,7 @@ func (m *PatientAppointments)FetchRequest()(err error){
 	for _, row := range *m {
 		tempData, ok := tempMapData[strconv.Itoa(row.ApptId)]
 		if ok {
-			row.Requests = tempData
+			row.Request = tempData
 		}
 	}
 	return err

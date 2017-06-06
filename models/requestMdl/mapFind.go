@@ -20,7 +20,7 @@ func getField(v *Request, field string) string {
 		return ""
 	}
 }
-func MapFind(groupByField string, where string, orderBy string) (requests map[string][]Request, err error) {
+func MapFind(groupByField string, where string, orderBy string) (requests map[string]Requests, err error) {
 	sqlString := "select request_id,appt_id,patient_id,person_id,type,data,created_by,creation_date,last_updated_by,last_update_date from ocs.requests"
 	if len(where) > 0 {
 		sqlString += (" where " + where)
@@ -34,7 +34,7 @@ func MapFind(groupByField string, where string, orderBy string) (requests map[st
 	}
 	defer rows.Close()
 
-	response := map[string][]Request{}
+	response := map[string]Requests{}
 	for rows.Next() {
 		row := Request{}
 		tempCreationDate := mysql.NullTime{}
@@ -47,10 +47,10 @@ func MapFind(groupByField string, where string, orderBy string) (requests map[st
 		groupByFieldValue := getField(&row, groupByField)
 		group, ok := response[groupByFieldValue]
 		if ok {
-			group = append(group, row)
+			group = append(group, &row)
 			response[groupByFieldValue] = group
 		} else {
-			response[groupByFieldValue] = []Request{row}
+			response[groupByFieldValue] = Requests{&row}
 		}
 	}
 

@@ -18,7 +18,7 @@ func createModelRelationshipFile(c *ishell.Context, folderName string, modelName
 	if relationType == "1" {
 		appendToBytes(&modelFile, fmt.Sprintf("\t%s %sMdl.%s `json:\"%s\"`\n", relationShipName, LcFirst(detailModel), detailModel, LcFirst(relationShipName)))
 	} else if relationType == "2" {
-		appendToBytes(&modelFile, fmt.Sprintf("\t%s []%sMdl.%s `json:\"%ss\"`\n", relationShipName, LcFirst(detailModel), detailModel, LcFirst(relationShipName)))
+		appendToBytes(&modelFile, fmt.Sprintf("\t%s %sMdl.%ss `json:\"%ss\"`\n", relationShipName, LcFirst(detailModel), detailModel, LcFirst(relationShipName)))
 	}
 
 	appendToBytes(&modelFile, fmt.Sprintf("\t}\n\n"))

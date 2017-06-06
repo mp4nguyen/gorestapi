@@ -20,7 +20,7 @@ func getField(v *Photo, field string) string {
 		return ""
 	}
 }
-func MapFind(groupByField string, where string, orderBy string) (photos map[string][]Photo, err error) {
+func MapFind(groupByField string, where string, orderBy string) (photos map[string]Photos, err error) {
 	sqlString := "select photo_id,request_id,appt_id,patient_id,person_id,type,data,uri,created_by,creation_date,last_updated_by,last_update_date from ocs.photos"
 	if len(where) > 0 {
 		sqlString += (" where " + where)
@@ -34,7 +34,7 @@ func MapFind(groupByField string, where string, orderBy string) (photos map[stri
 	}
 	defer rows.Close()
 
-	response := map[string][]Photo{}
+	response := map[string]Photos{}
 	for rows.Next() {
 		row := Photo{}
 		tempCreationDate := mysql.NullTime{}
@@ -47,10 +47,10 @@ func MapFind(groupByField string, where string, orderBy string) (photos map[stri
 		groupByFieldValue := getField(&row, groupByField)
 		group, ok := response[groupByFieldValue]
 		if ok {
-			group = append(group, row)
+			group = append(group, &row)
 			response[groupByFieldValue] = group
 		} else {
-			response[groupByFieldValue] = []Photo{row}
+			response[groupByFieldValue] = Photos{&row}
 		}
 	}
 

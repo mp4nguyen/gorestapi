@@ -27,7 +27,7 @@ func createMapFindFile(c *ishell.Context, folderName string, schemaName string, 
 	appendToBytes(&findFile, fmt.Sprintf("\t}\n"))
 	appendToBytes(&findFile, fmt.Sprintf("}\n"))
 
-	appendToBytes(&findFile, fmt.Sprintf("func MapFind(groupByField string,where string, orderBy string)(%ss map[string][]%s,err error){\n", LcFirst(modelName), modelName))
+	appendToBytes(&findFile, fmt.Sprintf("func MapFind(groupByField string,where string, orderBy string)(%ss map[string]%ss,err error){\n", LcFirst(modelName), modelName))
 	appendToBytes(&findFile, fmt.Sprintf("\tsqlString := \"select %s from %s.%s\"\n", queryFields, schemaName, tableName))
 
 	appendToBytes(&findFile, "\tif len(where) > 0 {\n")
@@ -45,7 +45,7 @@ func createMapFindFile(c *ishell.Context, folderName string, schemaName string, 
 	appendToBytes(&findFile, "\t}\n")
 	appendToBytes(&findFile, "\tdefer rows.Close()\n\n")
 
-	appendToBytes(&findFile, fmt.Sprintf("\tresponse := map[string][]%s{}\n", modelName))
+	appendToBytes(&findFile, fmt.Sprintf("\tresponse := map[string]%ss{}\n", modelName))
 	appendToBytes(&findFile, "\tfor rows.Next() {\n")
 	appendToBytes(&findFile, fmt.Sprintf("\t\trow := %s{}\n", modelName))
 
@@ -56,10 +56,10 @@ func createMapFindFile(c *ishell.Context, folderName string, schemaName string, 
 	appendToBytes(&findFile, fmt.Sprintf("\t\tgroupByFieldValue := getField(&row, groupByField)\n"))
 	appendToBytes(&findFile, fmt.Sprintf("\t\tgroup, ok := response[groupByFieldValue]\n"))
 	appendToBytes(&findFile, fmt.Sprintf("\t\tif ok {\n"))
-	appendToBytes(&findFile, fmt.Sprintf("\t\t\tgroup = append(group, row)\n"))
+	appendToBytes(&findFile, fmt.Sprintf("\t\t\tgroup = append(group, &row)\n"))
 	appendToBytes(&findFile, fmt.Sprintf("\t\t\tresponse[groupByFieldValue] = group\n"))
 	appendToBytes(&findFile, fmt.Sprintf("\t\t} else {\n"))
-	appendToBytes(&findFile, fmt.Sprintf("\t\t\tresponse[groupByFieldValue] = []%s{row}\n", modelName))
+	appendToBytes(&findFile, fmt.Sprintf("\t\t\tresponse[groupByFieldValue] = %ss{&row}\n", modelName))
 	appendToBytes(&findFile, fmt.Sprintf("\t\t}\n"))
 
 	appendToBytes(&findFile, "\t}\n\n")

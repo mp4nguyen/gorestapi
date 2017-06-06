@@ -2,6 +2,6 @@
 package requestMdl
 
 type Request struct{
-	Photos []photoMdl.Photo `json:"photoss"`
+	Photos photoMdl.Photos `json:"photoss"`
 	}
 

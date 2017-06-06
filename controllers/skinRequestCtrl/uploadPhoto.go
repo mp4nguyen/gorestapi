@@ -39,6 +39,28 @@ func saveToFile(goGroup *sync.WaitGroup, part *multipart.Part) error {
 	return nil
 }
 
+func saveToFile2(part *multipart.Part) error {
+
+	start := time.Now()
+	dst, err := os.Create("./photosupload/" + part.FileName())
+	defer dst.Close()
+	utils.LogError(" Create file ", err)
+	if err != nil {
+		//http.Error(w, err.Error(), http.StatusInternalServerError)
+		return err
+	}
+
+	if _, err := io.Copy(dst, part); err != nil {
+		utils.LogError(" Copy file ", err)
+		//http.Error(w, err.Error(), http.StatusInternalServerError)
+		return err
+	}
+
+	log.Printf("duration to create file %s = %s", part.FileName(), time.Since(start))
+
+	return nil
+}
+
 func saveToDB(goGroup *sync.WaitGroup, moleReq patientAppointmentMdl.MoleRequest) error {
 	err := moleReq.SubmitMoles()
 	utils.LogError("Submit mole request ", err)
@@ -60,7 +82,7 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//copy each part to destination.
-	parts := []*multipart.Part{}
+	//parts := []*multipart.Part{}
 	for {
 		part, err := reader.NextPart()
 		//utils.LogError(" ParseMultipartForm ", err)
@@ -79,19 +101,17 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 
 			continue
 		}
-		parts = append(parts, part)
-		//saveToFile2(part)
+		//parts = append(parts, part)
+		saveToFile2(part)
 	}
 
 	wg.Add(1)
 	go saveToDB(wg, moles)
 
-	for _, part := range parts {
-		wg.Add(1)
-		go saveToFile(wg, part)
-	}
-	//log.Print(" =======> parts = ", parts)
-	//display success message.
+	// for _, part := range parts {
+	// 	wg.Add(1)
+	// 	go saveToFile(wg, part)
+	// }
 
 	wg.Wait()
 	log.Infof("total duration = %s", time.Since(start))
