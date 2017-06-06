@@ -16,7 +16,7 @@ import (
 	route "bitbucket.org/restapi/server/routes"
 )
 
-var port string = "8080"
+var port string = "8000"
 var serviceName string = "onlinebooking/v1"
 
 func PrimaryHandler(w http.ResponseWriter, r *http.Request) {
