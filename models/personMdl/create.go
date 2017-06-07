@@ -15,6 +15,8 @@ func (inputs Persons) Create(tx *sql.Tx) (noOfRows int64, lastId int64, err erro
 		input.CreationDate = time.Now().UTC()
 		input.LastUpdateDate = time.Now().UTC()
 
+		fmt.Println("======> input.MedicareExpired = ", input.MedicareExpired)
+
 		sqlStr += "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?),"
 		vals = append(vals, input.PersonId, input.IsEnable, input.Title, input.FirstName, input.LastName, input.Dob.Format("2006-01-02 15:04:05"), input.Gender, input.Phone, input.Mobile, input.Occupation, input.Address, input.SuburbDistrict, input.Ward, input.Postcode, input.StateProvince, input.Country, input.IsPatient, input.IsDoctor, input.CreatedBy, input.CreationDate.Format("2006-01-02 15:04:05"), input.LastUpdatedBy, input.LastUpdateDate.Format("2006-01-02 15:04:05"), input.Email, input.SourceId, input.AvatarId, input.SignatureId, input.GPFirstName, input.GPLastName, input.ClinicName, input.GPContact, input.MedicareNo, input.MedicareRef, input.MedicareExpired)
 	}
@@ -44,7 +46,10 @@ func (input Person) Create(tx *sql.Tx) (noOfRows int64, lastId int64, err error)
 	vals := []interface{}{}
 	input.CreationDate = time.Now().UTC()
 	input.LastUpdateDate = time.Now().UTC()
-
+	if input.MedicareExpired.Before(time.Now()) {
+		input.MedicareExpired = input.MedicareExpired.Add(time.Hour)
+	}
+	fmt.Println("======> input.MedicareExpired = ", input.MedicareExpired)
 	sqlStr += "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 	vals = append(vals, input.PersonId, input.IsEnable, input.Title, input.FirstName, input.LastName, input.Dob.Format("2006-01-02 15:04:05"), input.Gender, input.Phone, input.Mobile, input.Occupation, input.Address, input.SuburbDistrict, input.Ward, input.Postcode, input.StateProvince, input.Country, input.IsPatient, input.IsDoctor, input.CreatedBy, input.CreationDate.Format("2006-01-02 15:04:05"), input.LastUpdatedBy, input.LastUpdateDate.Format("2006-01-02 15:04:05"), input.Email, input.SourceId, input.AvatarId, input.SignatureId, input.GPFirstName, input.GPLastName, input.ClinicName, input.GPContact, input.MedicareNo, input.MedicareRef, input.MedicareExpired)
 	stmt, errStmt := db.GetDB().Prepare(sqlStr)

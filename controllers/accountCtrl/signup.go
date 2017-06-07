@@ -41,7 +41,7 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 		creatingPerson.FirstName = member.Baseinfo.FirstName
 		creatingPerson.LastName = member.Baseinfo.LastName
 		creatingPerson.Dob, err = time.Parse(time.RFC3339, member.Baseinfo.Dob)
-		utils.LogError("parse time err", err)
+		utils.LogError("parse dob time err", err)
 		creatingPerson.Gender = member.Baseinfo.Gender
 		creatingPerson.Occupation = member.Baseinfo.Occupation
 		creatingPerson.Mobile = member.Contact.Phone
@@ -58,6 +58,8 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 		creatingPerson.MedicareNo = member.GP.MedicareNo
 		creatingPerson.MedicareRef = member.GP.MedicareRef
 		creatingPerson.MedicareExpired, err = time.Parse(time.RFC3339, member.GP.MedicareExpired)
+		utils.LogError("parse MedicareExpired time err", err)
+		err = nil
 		creatingPerson.IsEnable = 1
 		creatingPerson.IsPatient = 1
 		output, _ = json.Marshal(creatingPerson)
@@ -110,6 +112,12 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 		memberRes.Reason = err.Error()
 	}
 
+	login := accountMdl.Login{}
+	login.Username = member.Signup.Username
+	login.Password = member.Signup.Password
+	_, acc, _ := login.CheckAccount()
+	memberRes.Account = acc
+	memberRes.IsSuccess = true
 	output, err = json.Marshal(memberRes)
 	utils.LogError("failed to json marshal memberRes", err)
 	fmt.Fprintln(w, string(output))
