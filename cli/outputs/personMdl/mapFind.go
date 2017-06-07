@@ -14,7 +14,7 @@ func getField(v *Person, field string) string {
 		return ""
 	}
 }
-func MapFind(groupByField string,where string, orderBy string)(persons map[string][]Person,err error){
+func MapFind(groupByField string,where string, orderBy string)(persons map[string]Persons,err error){
 	sqlString := "select person_id,isEnable,title,first_name,last_name,dob,gender,phone,mobile,occupation,address,suburb_district,ward,postcode,state_province,country,isPatient,isDoctor,created_by,creation_date,last_updated_by,last_update_date,email,source_id,avatar_id,signature_id,GP_First_name,GP_Last_name,Clinic_Name,GP_Contact,Medicare_No,Medicare_ref,Medicare_Expired from ocs.people"
 	if len(where) > 0 {
 		sqlString += (" where " + where)
@@ -28,7 +28,7 @@ func MapFind(groupByField string,where string, orderBy string)(persons map[strin
 	}
 	defer rows.Close()
 
-	response := map[string][]Person{}
+	response := map[string]Persons{}
 	for rows.Next() {
 		row := Person{}
 		tempDob := mysql.NullTime{} 
@@ -46,10 +46,10 @@ row.MedicareExpired = tempMedicareExpired.Time
 		groupByFieldValue := getField(&row, groupByField)
 		group, ok := response[groupByFieldValue]
 		if ok {
-			group = append(group, row)
+			group = append(group, &row)
 			response[groupByFieldValue] = group
 		} else {
-			response[groupByFieldValue] = []Person{row}
+			response[groupByFieldValue] = Persons{&row}
 		}
 	}
 

@@ -20,8 +20,8 @@ func getField(v *Person, field string) string {
 		return ""
 	}
 }
-func MapFind(groupByField string, where string, orderBy string) (persons map[string][]Person, err error) {
-	sqlString := "select person_id,isEnable,title,first_name,last_name,dob,gender,phone,mobile,occupation,address,suburb_district,ward,postcode,state_province,country,isPatient,isDoctor,created_by,creation_date,last_updated_by,last_update_date,email,source_id,avatar_id,signature_id from ocs.people"
+func MapFind(groupByField string, where string, orderBy string) (persons map[string]Persons, err error) {
+	sqlString := "select person_id,isEnable,title,first_name,last_name,dob,gender,phone,mobile,occupation,address,suburb_district,ward,postcode,state_province,country,isPatient,isDoctor,created_by,creation_date,last_updated_by,last_update_date,email,source_id,avatar_id,signature_id,GP_First_name,GP_Last_name,Clinic_Name,GP_Contact,Medicare_No,Medicare_ref,Medicare_Expired from ocs.people"
 	if len(where) > 0 {
 		sqlString += (" where " + where)
 	}
@@ -34,25 +34,27 @@ func MapFind(groupByField string, where string, orderBy string) (persons map[str
 	}
 	defer rows.Close()
 
-	response := map[string][]Person{}
+	response := map[string]Persons{}
 	for rows.Next() {
 		row := Person{}
 		tempDob := mysql.NullTime{}
 		tempCreationDate := mysql.NullTime{}
 		tempLastUpdateDate := mysql.NullTime{}
+		tempMedicareExpired := mysql.NullTime{}
 
-		rows.Scan(&row.PersonId, &row.IsEnable, &row.Title, &row.FirstName, &row.LastName, &tempDob, &row.Gender, &row.Phone, &row.Mobile, &row.Occupation, &row.Address, &row.SuburbDistrict, &row.Ward, &row.Postcode, &row.StateProvince, &row.Country, &row.IsPatient, &row.IsDoctor, &row.CreatedBy, &tempCreationDate, &row.LastUpdatedBy, &tempLastUpdateDate, &row.Email, &row.SourceId, &row.AvatarId, &row.SignatureId)
+		rows.Scan(&row.PersonId, &row.IsEnable, &row.Title, &row.FirstName, &row.LastName, &tempDob, &row.Gender, &row.Phone, &row.Mobile, &row.Occupation, &row.Address, &row.SuburbDistrict, &row.Ward, &row.Postcode, &row.StateProvince, &row.Country, &row.IsPatient, &row.IsDoctor, &row.CreatedBy, &tempCreationDate, &row.LastUpdatedBy, &tempLastUpdateDate, &row.Email, &row.SourceId, &row.AvatarId, &row.SignatureId, &row.GPFirstName, &row.GPLastName, &row.ClinicName, &row.GPContact, &row.MedicareNo, &row.MedicareRef, &tempMedicareExpired)
 		row.Dob = tempDob.Time
 		row.CreationDate = tempCreationDate.Time
 		row.LastUpdateDate = tempLastUpdateDate.Time
+		row.MedicareExpired = tempMedicareExpired.Time
 
 		groupByFieldValue := getField(&row, groupByField)
 		group, ok := response[groupByFieldValue]
 		if ok {
-			group = append(group, row)
+			group = append(group, &row)
 			response[groupByFieldValue] = group
 		} else {
-			response[groupByFieldValue] = []Person{row}
+			response[groupByFieldValue] = Persons{&row}
 		}
 	}
 

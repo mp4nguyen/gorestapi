@@ -13,6 +13,7 @@ import (
 	"bitbucket.org/restapi/models/accountMdl"
 	"bitbucket.org/restapi/models/patientMdl"
 	"bitbucket.org/restapi/models/patientRelationshipMdl"
+	"bitbucket.org/restapi/models/patientRelationshipVMdl"
 	"bitbucket.org/restapi/models/personMdl"
 	"bitbucket.org/restapi/utils"
 )
@@ -33,11 +34,11 @@ func NewMember(w http.ResponseWriter, r *http.Request) {
 	output, err := json.Marshal(member)
 	log.Infof("Infor from client = %s", string(output))
 	utils.ErrorHandler("Json.Marshal for req body", err, nil)
-
+	var patientRelId int64
 	memberRes := personMdl.CreatedMemberRes{}
-
+	creatingPerson := personMdl.Person{}
 	err = db.Transaction(func(tx *sql.Tx) error {
-		creatingPerson := personMdl.Person{}
+
 		creatingPerson.Title = member.Baseinfo.Title
 		creatingPerson.FirstName = member.Baseinfo.FirstName
 		creatingPerson.LastName = member.Baseinfo.LastName
@@ -89,20 +90,24 @@ func NewMember(w http.ResponseWriter, r *http.Request) {
 		creatingPatientRel.RelationshipType = "FAMILY"
 		noOfPatientRel, lastPatientRelId, creatingPatientRelErr := creatingPatientRel.Create(tx)
 		utils.LogError("Failed to create patient relationship", creatingPatientRelErr)
-		log.Infof("noOfPatient=%s, lastPatientId=%s, creatingPatientErr=%s", noOfPatientRel, lastPatientRelId, creatingPatientRelErr)
-
+		log.Infof("noOfPatient=%s, patientRelId=%s, creatingPatientErr=%s", noOfPatientRel, lastPatientRelId, creatingPatientRelErr)
+		patientRelId = lastPatientRelId
 		memberRes.PatientId = int(lastPatientId)
 		memberRes.PersonId = int(lastPersonId)
+		memberRes.FatherPersonId = member.Baseinfo.FatherPersonId
 		return creatingPatientRelErr
 	})
 
 	if err != nil {
-		memberRes.IsSuccess = false
-		memberRes.Reason = err.Error()
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintln(w, err)
+	} else {
+		patientV, e := patientRelationshipVMdl.FindById(patientRelId)
+		//log.Info(" patientV = ", patientV)
+		utils.ErrorHandler("Query patient view", e, nil)
+		output, err := json.Marshal(patientV)
+		utils.ErrorHandler("Json.Marshal for req body", err, nil)
+		fmt.Fprintln(w, string(output))
 	}
-
-	output, err = json.Marshal(memberRes)
-	utils.LogError("failed to json marshal memberRes", err)
-	fmt.Fprintln(w, string(output))
 
 }

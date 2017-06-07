@@ -57,7 +57,13 @@ func UpdateMember(w http.ResponseWriter, r *http.Request) {
 	noOfRow, err := db.Update("people", updatingMember, nil)
 	utils.LogError("Update member", err)
 	log.Infof("Updated people %s row effected", noOfRow)
-
-	fmt.Fprintln(w, "Doing...")
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintln(w, err)
+	} else {
+		output, err := json.Marshal(updatingMember)
+		utils.ErrorHandler("Json.Marshal for req body", err, nil)
+		fmt.Fprintln(w, string(output))
+	}
 
 }

@@ -12,7 +12,7 @@ func (m *Account) FetchPerson() (err error) {
 	tempData, ok := tempMapData[strconv.Itoa(m.PersonId)]
 	if ok {
 		if len(tempData) > 0 {
-			m.Person = tempData[0]
+			m.Person = *tempData[0]
 		}
 	}
 	return err
@@ -33,7 +33,7 @@ func (m *Accounts) FetchPerson() (err error) {
 		tempData, ok := tempMapData[strconv.Itoa(row.PersonId)]
 		if ok {
 			if len(tempData) > 0 {
-				row.Person = tempData[0]
+				row.Person = *tempData[0]
 			}
 		}
 	}

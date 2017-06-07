@@ -61,6 +61,7 @@ func (m Login) CheckAccount() (isMatch bool, account LoginRes, err error) {
 
 		row.AccessToken = at
 		log.Infof(" at = %s", at)
+		log.Info(" row.Person = ", row.Person)
 		/////prepare object to return to client
 		patientAccRes := PatientAccountRes{
 			PersonId:       row.PersonId,
