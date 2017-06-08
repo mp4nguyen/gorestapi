@@ -20,8 +20,8 @@ type apptID struct {
 func getPhoto(photoName string) string {
 	log := logger.Log
 
-	log.Info("Will read file:", "./photosupload/"+photoName)
-	file, err := ioutil.ReadFile("./photosupload/" + photoName)
+	log.Info("Will read file:", "./smallphotosupload/"+photoName)
+	file, err := ioutil.ReadFile("./smallphotosupload/" + photoName)
 
 	//log.Info(" file = ", file)
 	utils.LogError(" loading file "+photoName+" failed ", err)

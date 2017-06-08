@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"image/jpeg"
 	"io"
 	"log"
 	"mime/multipart"
@@ -11,6 +12,8 @@ import (
 	"os"
 	"sync"
 	"time"
+
+	"github.com/disintegration/imaging"
 
 	"bitbucket.org/restapi/logger"
 	"bitbucket.org/restapi/models/patientAppointmentMdl"
@@ -35,6 +38,17 @@ func saveToFile(goGroup *sync.WaitGroup, part *multipart.Part) error {
 	}
 
 	log.Printf("duration to create file %s = %s", part.FileName(), time.Since(start))
+
+	img, err := jpeg.Decode(part)
+	utils.LogError(" ==========> decode to img ", err)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println(" \n\n\n\n===========> img = ", img, " err = ", err)
+	dstImage800 := imaging.Resize(img, 200, 0, imaging.Lanczos)
+	log.Println(" ======> dstImage800 = ", dstImage800, " err = ", err)
+	imaging.Save(dstImage800, "./smallphotosupload/"+part.FileName())
+
 	goGroup.Done()
 	return nil
 }
@@ -46,7 +60,6 @@ func saveToFile2(part *multipart.Part) error {
 	defer dst.Close()
 	utils.LogError(" Create file ", err)
 	if err != nil {
-		//http.Error(w, err.Error(), http.StatusInternalServerError)
 		return err
 	}
 
@@ -57,6 +70,11 @@ func saveToFile2(part *multipart.Part) error {
 	}
 
 	log.Printf("duration to create file %s = %s", part.FileName(), time.Since(start))
+
+	src, err := imaging.Open("./photosupload/" + part.FileName())
+	utils.LogError(" ==========> decode to img ", err)
+	dstImage800 := imaging.Resize(src, 200, 0, imaging.Lanczos)
+	imaging.Save(dstImage800, "./smallphotosupload/"+part.FileName())
 
 	return nil
 }
