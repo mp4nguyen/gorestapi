@@ -76,7 +76,7 @@ func main() {
 		WriteTimeout: 60 * time.Second,
 	}
 	requestServer("addServer")
-	server.ListenAndServe()
+	server.ListenAndServeTLS("./ssl/star_redimed_com_au.pem", "./ssl/star_redimed_com_au.key")
 	//http.ListenAndServe(":8080", nil)
 
 	// mux := bone.New()
