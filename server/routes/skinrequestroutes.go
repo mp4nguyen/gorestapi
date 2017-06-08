@@ -4,10 +4,10 @@ import "bitbucket.org/restapi/controllers/skinRequestCtrl"
 
 var skinrequestroutes = Routes{
 	Route{
-		"UploadPhoto",
+		"SubmitMoles",
 		"POST",
-		"/uploadPhoto",
-		skinRequestCtrl.UploadHandler,
+		"/submitMoles",
+		skinRequestCtrl.SubmitMoles,
 	},
 	Route{
 		"GetAppointments",
