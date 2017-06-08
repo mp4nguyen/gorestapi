@@ -80,16 +80,16 @@ func saveToFile2(part *multipart.Part) error {
 }
 
 func saveToDB(goGroup *sync.WaitGroup, moleReq patientAppointmentMdl.MoleRequest) error {
-	err := moleReq.SubmitMoles()
+	_, err := moleReq.SubmitMoles()
 	utils.LogError("Submit mole request ", err)
 	goGroup.Done()
 	return nil
 }
 
-func UploadHandler(w http.ResponseWriter, r *http.Request) {
+func SubmitMoles(w http.ResponseWriter, r *http.Request) {
 	log := logger.Log
 	start := time.Now()
-	wg := new(sync.WaitGroup)
+	//wg := new(sync.WaitGroup)
 	moles := patientAppointmentMdl.MoleRequest{}
 	reader, err := r.MultipartReader()
 
@@ -123,17 +123,19 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 		saveToFile2(part)
 	}
 
-	wg.Add(1)
-	go saveToDB(wg, moles)
+	appt, err := moles.SubmitMoles()
+
+	// wg.Add(1)
+	// go saveToDB(wg, moles)
 
 	// for _, part := range parts {
 	// 	wg.Add(1)
 	// 	go saveToFile(wg, part)
 	// }
 
-	wg.Wait()
+	//wg.Wait()
 	log.Infof("total duration = %s", time.Since(start))
 
-	fmt.Fprintf(w, "Upload successful.")
+	utils.APIResponse(w, err, appt)
 
 }

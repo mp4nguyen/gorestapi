@@ -2,7 +2,6 @@ package accountCtrl
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"time"
@@ -57,13 +56,14 @@ func UpdateMember(w http.ResponseWriter, r *http.Request) {
 	noOfRow, err := db.Update("people", updatingMember, nil)
 	utils.LogError("Update member", err)
 	log.Infof("Updated people %s row effected", noOfRow)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintln(w, err)
-	} else {
-		output, err := json.Marshal(updatingMember)
-		utils.ErrorHandler("Json.Marshal for req body", err, nil)
-		fmt.Fprintln(w, string(output))
-	}
+	// if err != nil {
+	// 	w.WriteHeader(http.StatusInternalServerError)
+	// 	fmt.Fprintln(w, err)
+	// } else {
+	// 	output, err := json.Marshal(updatingMember)
+	// 	utils.ErrorHandler("Json.Marshal for req body", err, nil)
+	// 	fmt.Fprintln(w, string(output))
+	// }
 
+	utils.APIResponse(w, err, updatingMember)
 }

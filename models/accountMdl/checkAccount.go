@@ -54,8 +54,8 @@ func (m Login) CheckAccount() (isMatch bool, account LoginRes, err error) {
 	} else {
 		row.FetchPerson()
 		row.Person.FetchPatientRelationshipV()
-		//row.Person.FetchPatientAppointment()
-		//row.Person.Relationships.FetchPatientAppointment()
+		row.Person.FetchPatientAppointment()
+		row.Person.Relationships.FetchPatientAppointment()
 		at, err := accessTokenMdl.Create(row.Id)
 		utils.ErrorHandler("Accesstoken generated ", err, nil)
 

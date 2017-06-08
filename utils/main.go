@@ -2,7 +2,9 @@ package utils
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
+	"net/http"
 	"reflect"
 	"strconv"
 	"strings"
@@ -11,6 +13,31 @@ import (
 	"bitbucket.org/restapi/logger"
 	"golang.org/x/crypto/bcrypt"
 )
+
+func ErrorResponse(w http.ResponseWriter, err error) {
+	w.WriteHeader(http.StatusInternalServerError)
+	fmt.Fprintln(w, err)
+}
+
+func APIResponse(w http.ResponseWriter, err error, v interface{}) {
+	if err != nil {
+		ErrorResponse(w, err)
+	} else {
+		output, errJson := json.Marshal(v)
+		LogError("Json.Marshal for req body", errJson)
+		if errJson != nil {
+			ErrorResponse(w, errJson)
+		} else {
+			fmt.Fprintln(w, string(output))
+		}
+	}
+}
+
+func JSON(v interface{}) string {
+	output, err := json.Marshal(v)
+	LogError(" json.Marshal ", err)
+	return string(output)
+}
 
 func LogError(info string, err error) {
 	if err != nil {

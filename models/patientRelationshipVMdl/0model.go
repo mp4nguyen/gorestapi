@@ -43,7 +43,7 @@ type PatientRelationshipV struct {
 	MedicareNo       string                                     `json:"medicareNo"`
 	MedicareRef      string                                     `json:"medicareRef"`
 	MedicareExpired  time.Time                                  `json:"medicareExpired"`
-	Appointments     []patientAppointmentMdl.PatientAppointment `json:"appointmentss"`
+	Appointments     []patientAppointmentMdl.PatientAppointment `json:"appointments"`
 }
 
 type PatientRelationshipVs []*PatientRelationshipV

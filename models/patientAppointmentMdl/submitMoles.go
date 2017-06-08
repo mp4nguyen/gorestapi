@@ -12,10 +12,11 @@ import (
 	"bitbucket.org/restapi/utils"
 )
 
-func (m MoleRequest) SubmitMoles() error {
+func (m MoleRequest) SubmitMoles() (PatientAppointment, error) {
 	log := logger.Log
+	creatingAppt := PatientAppointment{}
+
 	err := db.Transaction(func(tx *sql.Tx) error {
-		creatingAppt := PatientAppointment{}
 		creatingAppt.ApptDate = time.Now().UTC()
 		creatingAppt.ApptStatus = "Confirmed"
 		creatingAppt.ApptType = "MOLEPATROL"
@@ -27,6 +28,7 @@ func (m MoleRequest) SubmitMoles() error {
 		if apptErr != nil {
 			return apptErr
 		}
+		creatingAppt.ApptId = int(apptId)
 		log.Infof("noOfAppt=%s, apptId=%s, apptErr=%s", noOfAppt, apptId, apptErr)
 
 		for _, lesion := range m.Lesions {
@@ -79,5 +81,6 @@ func (m MoleRequest) SubmitMoles() error {
 		}
 		return nil
 	})
-	return err
+
+	return creatingAppt, err
 }
