@@ -47,6 +47,8 @@ func createRelationshipFindFile(c *ishell.Context, folderName string, modelName 
 	///create fetch data for array of data
 	appendToBytes(&findFile, fmt.Sprintf("func (m *%ss)Fetch%s()(err error){\n", modelName, detailModelName, modelName))
 
+	appendToBytes(&findFile, "if len(*m) > 0 {\n")
+
 	if relationshipType == "1" {
 		appendToBytes(&findFile, fmt.Sprintf("\tforeignKeys := map[string]string{}\n"))
 		appendToBytes(&findFile, fmt.Sprintf("\twhereCondition := \"%s in (\"\n", detailColumnKey))
@@ -92,6 +94,10 @@ func createRelationshipFindFile(c *ishell.Context, folderName string, modelName 
 	}
 
 	appendToBytes(&findFile, fmt.Sprintf("\treturn err\n"))
+
+	appendToBytes(&findFile, "} else {\n")
+	appendToBytes(&findFile, "return nil\n")
+	appendToBytes(&findFile, "}\n")
 
 	appendToBytes(&findFile, "}\n")
 

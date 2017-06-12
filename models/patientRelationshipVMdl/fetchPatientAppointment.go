@@ -15,18 +15,24 @@ func (m *PatientRelationshipV) FetchPatientAppointment() (err error) {
 	}
 	return err
 }
+
 func (m *PatientRelationshipVs) FetchPatientAppointment() (err error) {
-	whereCondition := "patient_id in ("
-	for _, row := range *m {
-		whereCondition = whereCondition + strconv.Itoa(row.PatientId) + ","
-	}
-	whereCondition = whereCondition[0:len(whereCondition)-1] + ")"
-	tempMapData, err := patientAppointmentMdl.MapFind("PatientId", whereCondition, "patient_id")
-	for _, row := range *m {
-		tempData, ok := tempMapData[strconv.Itoa(row.PatientId)]
-		if ok {
-			row.Appointments = tempData
+	if len(*m) > 0 {
+		whereCondition := "patient_id in ("
+		for _, row := range *m {
+			whereCondition = whereCondition + strconv.Itoa(row.PatientId) + ","
 		}
+		whereCondition = whereCondition[0:len(whereCondition)-1] + ")"
+		tempMapData, err := patientAppointmentMdl.MapFind("PatientId", whereCondition, "patient_id")
+		for _, row := range *m {
+			tempData, ok := tempMapData[strconv.Itoa(row.PatientId)]
+			if ok {
+				row.Appointments = tempData
+			}
+		}
+		return err
+	} else {
+		return nil
 	}
-	return err
+
 }

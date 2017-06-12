@@ -52,10 +52,18 @@ func (m Login) CheckAccount() (isMatch bool, account LoginRes, err error) {
 	if isMatchAcc == false {
 		return false, loginRes, errors.New("Wrong password")
 	} else {
-		row.FetchPerson()
-		row.Person.FetchPatientRelationshipV()
-		row.Person.FetchPatientAppointment()
-		row.Person.Relationships.FetchPatientAppointment()
+		err := row.FetchPerson()
+		utils.LogError("Fetch person for account", err)
+
+		err = row.Person.FetchPatientRelationshipV()
+		utils.LogError("FetchPatientRelationshipV for account", err)
+
+		err = row.Person.FetchPatientAppointment()
+		utils.LogError("FetchPatientAppointment for account", err)
+
+		err = row.Person.Relationships.FetchPatientAppointment()
+		utils.LogError("FetchPatientAppointment for Relationships", err)
+
 		at, err := accessTokenMdl.Create(row.Id)
 		utils.ErrorHandler("Accesstoken generated ", err, nil)
 

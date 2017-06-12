@@ -28,6 +28,7 @@ func MapFind(groupByField string, where string, orderBy string) (patientAppointm
 	if len(orderBy) > 0 {
 		sqlString += (" order by " + orderBy)
 	}
+	log.Println("patientAppointmentMdl.mapfind.go: sql  = ", sqlString)
 	rows, err := db.GetDB().Query(sqlString)
 	if err != nil {
 		log.Println("patientAppointmentMdl.find.go: All() err = ", err)
