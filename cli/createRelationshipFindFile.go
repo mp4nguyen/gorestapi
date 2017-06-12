@@ -19,14 +19,14 @@ func createRelationshipFindFile(c *ishell.Context, folderName string, modelName 
 	appendToBytes(&findFile, fmt.Sprintf("func (m *%s)Fetch%s()(err error){\n", modelName, detailModelName, modelName))
 
 	if relationshipType == "1" {
-		appendToBytes(&findFile, fmt.Sprintf("\twhereCondition := \"%s = \" + strconv.Itoa(m.%s) \n", detailColumnKey, fieldName(detailColumnKey)))
+		appendToBytes(&findFile, fmt.Sprintf("\twhereCondition := \"%s = \" + strconv.Itoa(m.%s) \n", detailColumnKey, fieldName(masterTableForeignKey)))
 	} else if relationshipType == "2" {
 		appendToBytes(&findFile, fmt.Sprintf("\twhereCondition := \"%s = \" + strconv.Itoa(m.%s)\n", detailTableForeignKey, fieldName(masterColumnKey)))
 	}
 
 	if relationshipType == "1" {
 		appendToBytes(&findFile, fmt.Sprintf("\ttempMapData, err := %sMdl.MapFind(\"%s\",whereCondition, \"%s\")\n", LcFirst(detailModelName), fieldName(detailColumnKey), detailColumnKey))
-		appendToBytes(&findFile, fmt.Sprintf("\t\ttempData, ok := tempMapData[strconv.Itoa(m.%s)]\n", fieldName(detailColumnKey)))
+		appendToBytes(&findFile, fmt.Sprintf("\t\ttempData, ok := tempMapData[strconv.Itoa(m.%s)]\n", fieldName(masterTableForeignKey)))
 		appendToBytes(&findFile, fmt.Sprintf("\t\tif ok {\n"))
 		appendToBytes(&findFile, fmt.Sprintf("\t\t\tif len(tempData) > 0 {\n"))
 		appendToBytes(&findFile, fmt.Sprintf("\t\t\tm.%s = tempData[0]\n", relationShipName))
@@ -73,7 +73,7 @@ func createRelationshipFindFile(c *ishell.Context, folderName string, modelName 
 	if relationshipType == "1" {
 		appendToBytes(&findFile, fmt.Sprintf("\ttempMapData, err := %sMdl.MapFind(\"%s\",whereCondition, \"%s\")\n", LcFirst(detailModelName), fieldName(detailColumnKey), detailColumnKey))
 		appendToBytes(&findFile, fmt.Sprintf("\tfor _, row := range *m {\n"))
-		appendToBytes(&findFile, fmt.Sprintf("\t\ttempData, ok := tempMapData[strconv.Itoa(row.%s)]\n", fieldName(detailColumnKey)))
+		appendToBytes(&findFile, fmt.Sprintf("\t\ttempData, ok := tempMapData[strconv.Itoa(row.%s)]\n", fieldName(masterTableForeignKey)))
 		appendToBytes(&findFile, fmt.Sprintf("\t\tif ok {\n"))
 		appendToBytes(&findFile, fmt.Sprintf("\t\t\tif len(tempData) > 0 {\n"))
 		appendToBytes(&findFile, fmt.Sprintf("\t\t\trow.%s = tempData[0]\n", relationShipName))
