@@ -25,8 +25,9 @@ type Clinic struct {
 	CreationDate   time.Time               `json:"creationDate"`
 	LastUpdatedBy  int                     `json:"lastUpdatedBy"`
 	LastUpdateDate time.Time               `json:"lastUpdateDate"`
-	Latitude       int64                   `json:"latitude"`
-	Longitude      int64                   `json:"longitude"`
+	Latitude       float64                 `json:"latitude"`
+	Longitude      float64                 `json:"longitude"`
+	IconBase64     string                  `json:"iconBase64" mysql:"icon_base64"`
 	Slots          calendarVMdl.CalendarVs `json:"slots"`
 }
 

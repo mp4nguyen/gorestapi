@@ -12,7 +12,7 @@ func (m *RostersByDateV) FetchClinic() (err error) {
 	tempData, ok := tempMapData[strconv.Itoa(m.WorkingSiteId)]
 	if ok {
 		if len(tempData) > 0 {
-			m.Clinic = tempData[0]
+			m.Clinic = *tempData[0]
 		}
 	}
 	return err
@@ -34,7 +34,7 @@ func (m *RostersByDateVs) FetchClinic() (err error) {
 		tempData, ok := tempMapData[strconv.Itoa(row.WorkingSiteId)]
 		if ok {
 			if len(tempData) > 0 {
-				row.Clinic = tempData[0]
+				row.Clinic = *tempData[0]
 			}
 		}
 	}

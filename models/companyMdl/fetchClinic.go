@@ -16,7 +16,7 @@ func (m *Companys) FetchClinic() (err error) {
 	for _, row := range *m {
 		tempData, ok := tempMapData[strconv.Itoa(row.CompanyId)]
 		if ok {
-			row.Clinic = tempData
+			row.Clinics = tempData
 		}
 	}
 	return err

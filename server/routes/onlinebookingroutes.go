@@ -15,4 +15,10 @@ var onlinebookingroutes = Routes{
 		"/searchClinics",
 		onlineBookingCtrl.SearchClinics,
 	},
+	Route{
+		"GetSlots",
+		"POST",
+		"/getSlots",
+		onlineBookingCtrl.GetSlots,
+	},
 }

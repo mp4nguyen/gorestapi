@@ -22,3 +22,15 @@ func (m *Clinics) FetchCalendarVByBookingTypeAndDate(bookingTypeId int, rosterDa
 	}
 	return err
 }
+
+func (m *Clinic) FetchCalendarVByBookingTypeAndDate(bookingTypeId int, rosterDate time.Time) (err error) {
+	whereCondition := " booking_type_id = " + strconv.Itoa(bookingTypeId) + " and roster_date = '" + rosterDate.Format("2006-01-02") + "' and clinic_id = " + strconv.Itoa(m.ClinicId)
+	tempMapData, err := calendarVMdl.MapFind("ClinicId", whereCondition, "clinic_id")
+
+	tempData, ok := tempMapData[strconv.Itoa(m.ClinicId)]
+	if ok {
+		m.Slots = tempData
+	}
+
+	return err
+}
