@@ -16,6 +16,12 @@ var accountroutes = Routes{
 		accountCtrl.LoginAT,
 	},
 	Route{
+		"Logout",
+		"POST",
+		"/logout",
+		accountCtrl.Logout,
+	},
+	Route{
 		"CheckAvailableAccount",
 		"POST",
 		"/checkAvailableAccount",
