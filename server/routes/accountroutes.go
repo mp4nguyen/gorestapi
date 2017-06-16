@@ -34,6 +34,12 @@ var accountroutes = Routes{
 		accountCtrl.Signup,
 	},
 	Route{
+		"Signup2",
+		"POST",
+		"/signup2",
+		accountCtrl.Signup2,
+	},
+	Route{
 		"NewMember",
 		"POST",
 		"/newMember",
