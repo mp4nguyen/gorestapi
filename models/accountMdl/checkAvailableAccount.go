@@ -18,13 +18,13 @@ func (m Login) CheckAvailableAccount() (checkAvailableRes CheckAvailableRes) {
 
 	rs.Scan(&row.Email, &row.Id, &row.Username)
 	//log.Println("row = ", row)
-	if strings.ToLower(row.Email) == strings.ToLower(m.Email) {
+	if strings.ToLower(row.Email) == strings.ToLower(m.Email) && len(m.Email) > 0 {
 		res.IsAvailable = false
-		res.Reason = m.Email + " has existed in the system"
+		res.Reason = "Email '" + m.Email + "' has existed in the system"
 		return res
-	} else if strings.ToLower(row.Username) == strings.ToLower(m.Username) {
+	} else if strings.ToLower(row.Username) == strings.ToLower(m.Username) && len(m.Username) > 0 {
 		res.IsAvailable = false
-		res.Reason = m.Username + " has existed in the system"
+		res.Reason = "Username '" + m.Username + "' has existed in the system"
 		return res
 	} else {
 		res.IsAvailable = true

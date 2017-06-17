@@ -1,4 +1,4 @@
-package main
+package sslmain
 
 import (
 	"fmt"
@@ -9,9 +9,7 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
-   
-   
-  	
+
 	"bitbucket.org/restapi/db"
 	"bitbucket.org/restapi/logger"
 	"bitbucket.org/restapi/myjwt"
@@ -55,12 +53,12 @@ func requestServer(action string) {
 }
 
 func main() {
-/*
-	certManager := autocert.Manager{
-        Prompt:     autocert.AcceptTOS,
-        HostPolicy: autocert.HostWhitelist("redimed.com.au"), //your domain here
-        Cache:      autocert.DirCache("certs"), //folder for storing certificates
-    }
+	/*
+	   	certManager := autocert.Manager{
+	           Prompt:     autocert.AcceptTOS,
+	           HostPolicy: autocert.HostWhitelist("redimed.com.au"), //your domain here
+	           Cache:      autocert.DirCache("certs"), //folder for storing certificates
+	       }
 	*/
 	////Initial Mysql, Redis, JWT
 	logger.InitLogger()
@@ -79,7 +77,7 @@ func main() {
 	http.Handle("/", route.NewRouter())
 
 	////Config and start the server
-	
+
 	server := http.Server{
 		Addr:         ":" + port,
 		ReadTimeout:  60 * time.Second,
@@ -87,18 +85,18 @@ func main() {
 	}
 	requestServer("addServer")
 	server.ListenAndServeTLS("./certs/server.pem", "./certs/server.key")
-	
-	/*
-	server := &http.Server{
-        Addr: ":" + port,
-		ReadTimeout:  60 * time.Second,
-		WriteTimeout: 60 * time.Second,		
-        TLSConfig: &tls.Config{
-            GetCertificate: certManager.GetCertificate,
-        },
-    }
 
-    server.ListenAndServeTLS("", "") 
+	/*
+			server := &http.Server{
+		        Addr: ":" + port,
+				ReadTimeout:  60 * time.Second,
+				WriteTimeout: 60 * time.Second,
+		        TLSConfig: &tls.Config{
+		            GetCertificate: certManager.GetCertificate,
+		        },
+		    }
+
+		    server.ListenAndServeTLS("", "")
 	*/
 	//key and cert are comming from Let's Encrypt
 	//http.ListenAndServe(":8080", nil)

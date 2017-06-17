@@ -6,6 +6,33 @@ type Login struct {
 	Email    string `json:"email"`
 }
 
+type PatientProfile struct {
+	Username        string `json:"username"`
+	Password        string `json:"password"`
+	Email           string `json:"email"`
+	FatherPersonId  int    `json:"fatherPersonId"`
+	PersonId        int    `json:"personId"`
+	Title           string `json:"title"`
+	FirstName       string `json:"firstName"`
+	LastName        string `json:"lastName"`
+	Dob             string `json:"dob"`
+	Gender          string `json:"gender"`
+	Occupation      string `json:"occupation"`
+	Mobile          string `json:"phone"`
+	Address         string `json:"address"`
+	SuburbDistrict  string `json:"suburbDistrict"`
+	StateProvince   string `json:"stateProvince"`
+	Postcode        string `json:"postcode"`
+	Country         string `json:"country"`
+	GPFirstName     string `json:"gpFirstName"`
+	GPLastName      string `json:"gpLastName"`
+	Clinic          string `json:"clinic"`
+	GPContactNumber string `json:"gpContactNumber"`
+	MedicareNo      string `json:"medicareNo"`
+	MedicareRef     string `json:"medicareRef"`
+	MedicareExpired string `json:"medicareExpired"`
+}
+
 type signup struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
