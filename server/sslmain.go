@@ -10,6 +10,7 @@ import (
 	"syscall"
 	"time"
 
+	"bitbucket.org/restapi/controllers/websocketCtrl"
 	"bitbucket.org/restapi/db"
 	"bitbucket.org/restapi/logger"
 	"bitbucket.org/restapi/myjwt"
@@ -75,7 +76,7 @@ func main() {
 	////Register route for the server
 	//route.NewRouter()
 	http.Handle("/", route.NewRouter())
-
+	http.HandleFunc("/socket", websocketCtrl.Socket)
 	////Config and start the server
 
 	server := http.Server{
