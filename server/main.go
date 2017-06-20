@@ -56,7 +56,7 @@ func requestServer(action string) {
 func main() {
 	isTLS := false
 	if len(os.Args) > 0 && os.Args[1] == "SSL" {
-		isTLS := true
+		isTLS = true
 	}
 	/*
 	   	certManager := autocert.Manager{
