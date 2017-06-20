@@ -18,6 +18,7 @@ import (
 )
 
 var port string = "8000"
+var sslport string = "8009"
 var serviceName string = "onlinebooking/v1"
 
 func PrimaryHandler(w http.ResponseWriter, r *http.Request) {
@@ -83,18 +84,26 @@ func main() {
 	http.HandleFunc("/socket", websocketCtrl.Socket)
 	////Config and start the server
 
-	server := http.Server{
-		Addr:         ":" + port,
-		ReadTimeout:  60 * time.Second,
-		WriteTimeout: 60 * time.Second,
-	}
-
 	requestServer("addServer")
 
 	if isTLS {
-		server.ListenAndServe()
+		server := http.Server{
+			Addr:         ":" + sslport,
+			ReadTimeout:  60 * time.Second,
+			WriteTimeout: 60 * time.Second,
+		}
+	
+		fmt.Println("https://localhost:", sslport," is running....")
+		server.ListenAndServeTLS("./certs/server.pem", "./certs/server.key")				
 	} else {
-		server.ListenAndServeTLS("./certs/server.pem", "./certs/server.key")
+		server := http.Server{
+			Addr:         ":" + port,
+			ReadTimeout:  60 * time.Second,
+			WriteTimeout: 60 * time.Second,
+		}
+	
+		fmt.Println("http://localhost:", port," is running....")
+		server.ListenAndServe()		
 	}
 
 	/*
