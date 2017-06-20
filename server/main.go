@@ -54,6 +54,10 @@ func requestServer(action string) {
 }
 
 func main() {
+	isTLS := false
+	if len(os.Args) > 0 && os.Args[1] == "SSL" {
+		isTLS := true
+	}
 	/*
 	   	certManager := autocert.Manager{
 	           Prompt:     autocert.AcceptTOS,
@@ -84,8 +88,14 @@ func main() {
 		ReadTimeout:  60 * time.Second,
 		WriteTimeout: 60 * time.Second,
 	}
+
 	requestServer("addServer")
-	server.ListenAndServe()
+
+	if isTLS {
+		server.ListenAndServe()
+	} else {
+		server.ListenAndServeTLS("./certs/server.pem", "./certs/server.key")
+	}
 
 	/*
 			server := &http.Server{
